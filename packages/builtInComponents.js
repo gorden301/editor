@@ -30,6 +30,11 @@ export default [
         },
         attrs: {
         },
+        eventsConfig: {
+            'click': [],
+            'blur': [],
+            'hover': []
+        },
         on: {
         },
         nativeOn: {
@@ -63,6 +68,11 @@ export default [
             type: '',
             allowClear: ''
         },
+        eventsConfig: {
+            'click': [],
+            'blur': [],
+            'hover': []
+        },
         style: {
             width: ''
         },
@@ -84,6 +94,11 @@ export default [
         category: 'basic',
         name: '计数器',
         icon: 'icon-number',
+        eventsConfig: {
+            'click': [],
+            'blur': [],
+            'hover': []
+        },
         options: {
             allowCondition: false,
             width: '',
@@ -101,6 +116,11 @@ export default [
         category: 'basic',
         name: '单选框组',
         icon: 'icon-radio-active',
+        eventsConfig: {
+            'click': [],
+            'blur': [],
+            'hover': []
+        },
         props: {
             conditionConfig: {
                 allowCondition: false,
@@ -184,6 +204,11 @@ export default [
         category: 'basic',
         name: '时间选择器',
         icon: 'icon-time',
+        eventsConfig: {
+            'click': [],
+            'blur': [],
+            'hover': []
+        },
         props: {
             conditionConfig: {
                 allowCondition: false,

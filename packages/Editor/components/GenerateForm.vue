@@ -182,6 +182,7 @@ export default {
     },
     mounted() {},
     methods: {
+        preview() {},
         generateModel(genList) {
             for (let i = 0; i < genList.length; i++) {
                 // mergeDefaultOption(genList[i]);

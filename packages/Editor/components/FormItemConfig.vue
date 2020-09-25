@@ -7,6 +7,7 @@
             <a-form-item v-if="item.type !== 'grid'" label="数据绑定Key">
                 <a-input v-model="item.model" />
             </a-form-item>
+            <!-- 条件渲染 -->
             <a-form-item label="是否开启条件渲染">
                 <a-switch v-model="item.props.conditionConfig.allowCondition" />
                 <div v-show="item.props.conditionConfig.allowCondition">
@@ -40,6 +41,29 @@
                             </a-select>
                             <a-input v-model="obj.value" />
                             <a-button type="danger" size="small" @click="deleteCondition(index)">删除</a-button>
+                        </div>
+                    </div>
+                </div>
+            </a-form-item>
+            <a-form-item label="触发器">
+                <div v-for="(k, index) in triggers" :key="index">
+                    <div class="trigger">
+                        <div style="display:flex;align-items:center;">
+                            <a-icon type="info-circle" />
+                            <div>{{ k.label }}</div>
+                        </div>
+                        <a-icon type="plus" style="cursor:pointer;" @click="addEvents(k,index)" />
+                    </div>
+                    <div v-show="item.eventsConfig[k.key].length > 0">
+                        <div v-for="(val, _index) in item.eventsConfig[k.key]" :key="_index" style="display:flex;align-items:center;">
+                            <a-select v-model="val.event">
+                                <a-select-option
+                                    v-for="(m, sec_index) in data.config.events"
+                                    :key="sec_index"
+                                    :value="m.eventName"
+                                >{{ m.eventName }}</a-select-option>
+                            </a-select>
+                            <a-button type="danger" size="small" @click="deleteEvents(k, _index)">删除</a-button>
                         </div>
                     </div>
                 </div>
@@ -293,6 +317,23 @@ export default {
         return {
             modelOptions: [],
             conditionType: "and",
+            triggers: [
+                {
+                    label: "点击时(click)",
+                    key: "click",
+                    events: [],
+                },
+                {
+                    label: "移开时(blur)",
+                    key: "blur",
+                    events: [],
+                },
+                {
+                    label: "鼠标悬停时(hover)",
+                    key: "hover",
+                    events: [],
+                },
+            ],
         };
     },
     computed: {
@@ -310,8 +351,19 @@ export default {
         },
     },
     methods: {
+        deleteEvents(item, _index) {
+            this.item.eventsConfig[item.key].splice(_index, 1);
+        },
+        addEvents(item, index) {
+            if (this.data.config.events.length > 0) {
+                this.item.eventsConfig[item.key].push({
+                    event: "",
+                    // ...this.data.confog.events[0]
+                });
+            }
+        },
         deleteCondition(index) {
-            this.item.props.conditionConfig.conditions.splice(index, 1)
+            this.item.props.conditionConfig.conditions.splice(index, 1);
         },
         addCondition() {
             this.item.props.conditionConfig.conditions.push({
@@ -345,3 +397,12 @@ export default {
     },
 };
 </script>
+<style lang="scss" scoped>
+.trigger {
+    padding: 2px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #d8d8d8;
+}
+</style>>

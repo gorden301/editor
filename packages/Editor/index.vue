@@ -1,10 +1,11 @@
 <template>
     <a-layout class="xd-pe-container">
-        <a-layout-header style="background: #fff;" class="xd-pe-toolbar">
+        <a-layout-header
+            style="background: #fff;border-bottom: 1px solid #F7F7F7;"
+            class="xd-pe-toolbar"
+        >
             <span>
-                <a-button type="default" @click="newConf">新建</a-button>
-                <a-button type="default" @click="handlePreview">打开</a-button>
-                <a-button type="default" @click="handlePreview">保存</a-button>
+                <slot name="button"></slot>
                 <a-button type="default" @click="handlePreview">预览</a-button>
             </span>
             <a-radio-group v-model="pageShow" button-style="solid">
@@ -23,10 +24,19 @@
             </span>
         </a-layout-header>
         <a-layout-content class="xd-pe-main">
+            <event
+                :data="widgetForm"
+                @addEvents="addEvents"
+                @deleteEvents="deleteEvents"
+                v-show="pageShow == 'c'"
+            ></event>
             <a-layout style="height:100%;" v-show="pageShow == 'b'">
-                <a-layout-content>
-                    <a-tree :tree-data="treeData" :replace-fields="replaceFields" :autoExpandParent="true"></a-tree>
-                </a-layout-content>
+                <structure
+                    @chooseTreeData="chooseTreeData"
+                    @deleteCus="deleteCus"
+                    @addCus="addCus"
+                    :treeData="currentTreeData"
+                ></structure>
             </a-layout>
             <a-layout style="height: 100%;" v-show="pageShow == 'a'">
                 <a-layout-sider class="components-list" width="250">
@@ -110,9 +120,34 @@
                     </a-tabs>
                 </a-layout-sider>
                 <a-layout-content :class="{'widget-empty': widgetForm.list.length === 0}">
+                    <div class="configTop">
+                        <div
+                            :class="['tab', { 'white': activeIndex == 'mainPage' }]"
+                            @click="clickMain"
+                        >mainPage</div>
+                        <div
+                            style="justify-content: space-between;"
+                            :class="['tab', { 'white': activeIndex == index }]"
+                            v-for="(item, index) in widgetForm.config.choosedCustom"
+                            :key="index"
+                            @click="chooseCom(item, index)"
+                        >
+                            <span style="margin-right: 15px;">{{ item.name }}</span>
+                            <a-icon type="close" @click="deleteChoosedCus(index)" />
+                        </div>
+                        <div class="tab" @click="addComponent">+</div>
+                    </div>
                     <form-widget
-                        v-if="$props.type === 'form'"
+                        v-if="$props.type === 'form' && activeIndex == 'mainPage'"
                         :data="widgetForm"
+                        :select="selectedItem"
+                        @item-select-event="onSelectionChange"
+                        @upload-template="setJSON"
+                        @addTree="addTree"
+                    />
+                    <form-widget
+                        v-if="$props.type === 'form' && activeIndex !== 'mainPage'"
+                        :data="currentForm"
                         :select="selectedItem"
                         @item-select-event="onSelectionChange"
                         @upload-template="setJSON"
@@ -195,6 +230,33 @@
                 -->
             </generate-form>
         </pre-dialog>
+        <a-drawer
+            title="选择组件"
+            placement="right"
+            :closable="false"
+            :visible="drawerVisible"
+            :after-visible-change="afterVisibleChange"
+            @close="onClose"
+        >
+            <a-select
+                mode="tags"
+                size="default"
+                placeholder="Please select"
+                v-model="drawerItems"
+                style="width: 200px"
+                @change="handleChange"
+            >
+                <a-select-option
+                    v-for="(item, index) in widgetForm.config.customComponents"
+                    :key="index"
+                    :value="item.name"
+                >{{ item.name }}</a-select-option>
+            </a-select>
+            <div>
+                <a-button type="primary" @click="confirmComponent">确定</a-button>
+                <a-button @click="closeDrawer">取消</a-button>
+            </div>
+        </a-drawer>
     </a-layout>
 </template>
 
@@ -215,6 +277,8 @@ export default {
         pageItemConf: () => import("./components/PageItemConfig"),
         preDialog: () => import("./components/PreDialog"),
         generateForm: () => import("./components/GenerateForm"),
+        Event: () => import("./pages/Event"),
+        Structure: () => import("./pages/Structure"),
     },
     props: {
         extList: {
@@ -228,22 +292,31 @@ export default {
     },
     data() {
         return {
+            drawerItems: [],
+            drawerVisible: false,
+            activeIndex: "mainPage",
             replaceFields: {
-                title: 'name',
-                key: 'model'
+                title: "name",
+                key: "model",
             },
+            cusComponentForm: {},
             widgetForm: {
-                config: {},
+                config: {
+                    events: [],
+                    customComponents: [],
+                    choosedCustom: [],
+                    treeData: [
+                        {
+                            name: "表单",
+                            model: "form",
+                            children: [],
+                        },
+                    ],
+                },
                 list: [],
             },
-            treeData: [
-                {
-                    name: '表单',
-                    model: 'form',
-                    children: []
-                }
-            ],
-            pageShow: 'a',
+            pageShow: "a",
+            currentTreeData: [],
             modified: false,
             configTab: "widget",
             selectedItem: {},
@@ -268,7 +341,14 @@ export default {
         };
     },
     computed: {
-        handleTest() {},
+        currentForm: {
+            get() {
+                return this.cusComponentForm;
+            },
+            set(obj) {
+                this.cusComponentForm = obj;
+            },
+        },
         formattedJSON() {
             return JSON.stringify(this.getJson(), null, "  ");
         },
@@ -326,15 +406,116 @@ export default {
         // },
     },
     mounted() {
-        this.$nextTick(() => {});
+        this.$nextTick(() => {
+            this.currentTreeData = this.widgetForm.config.treeData
+            this.currentTreeData.splice()
+        });
     },
     methods: {
+        chooseTreeData(obj) {
+            if (obj.type == "mainPage") {
+                this.currentTreeData = this.widgetForm.config.treeData;
+                this.currentTreeData.splice();
+            } else {
+                let arr = [];
+                if (this.widgetForm.config.choosedCustom.length > 0) {
+                    arr = this.widgetForm.config.choosedCustom.filter(
+                        (item) => {
+                            return item.name == obj.item.name;
+                        }
+                    );
+                    if (arr.length > 0) {
+                        this.currentTreeData = arr[0].treeData;
+                        this.currentTreeData.splice();
+                    } else {
+                        this.currentTreeData = obj.item.treeData;
+                        this.currentTreeData.splice();
+                    }
+                } else {
+                    this.currentTreeData = obj.item.treeData;
+                    this.currentTreeData.splice();
+                }
+            }
+        },
+        clickMain() {
+            this.activeIndex = "mainPage";
+        },
+        deleteChoosedCus(index) {
+            this.widgetForm.config.choosedCustom.splice(index, 1);
+        },
+        chooseCom(item, index) {
+            this.activeIndex = index;
+            this.currentForm = item.widgetForm;
+        },
+        handleChange(value, option) {},
+        confirmComponent() {
+            if (this.drawerItems.length > 0) {
+                this.widgetForm.config.choosedCustom = this.drawerItems.map(
+                    (item) => {
+                        return this.widgetForm.config.customComponents.filter(
+                            (k) => {
+                                return item == k.name;
+                            }
+                        )[0];
+                    }
+                );
+                this.widgetForm.config.choosedCustom.splice();
+            }
+            this.drawerItems = [];
+            this.drawerItems.splice();
+            this.drawerVisible = false;
+        },
+        closeDrawer() {
+            this.drawerVisible = false;
+            this.drawerItems = [];
+        },
+        afterVisibleChange(val) {
+            console.log("visible", val);
+        },
+        showDrawer() {
+            this.drawerVisible = true;
+        },
+        onClose() {
+            this.drawerItems = [];
+            this.drawerItems.splice();
+            this.drawerVisible = false;
+        },
+        deleteCus(obj) {
+            this.widgetForm.config.customComponents.splice(obj.index, 1);
+            this.widgetForm.config.choosedCustom = this.widgetForm.config.choosedCustom.filter(
+                (item) => {
+                    return item.name != obj.item.name;
+                }
+            );
+            this.widgetForm.config.choosedCustom.splice();
+        },
+        addCus(obj) {
+            this.widgetForm.config.customComponents.push(obj);
+        },
+        addComponent() {
+            this.drawerVisible = true;
+        },
+        handleTest() {},
+        deleteEvents(index) {
+            this.widgetForm.config.events.splice(index, 1);
+        },
+        addEvents(item) {
+            this.widgetForm.config.events.push(item);
+        },
+        openForm() {},
+        saveForm() {},
         addTree(item) {
-            console.log('===============>插入树元素', item)
-            this.treeData[0].children.push(item)
+            console.log("===============>插入树元素", item);
+            if (this.activeIndex == "mainPage") {
+                this.widgetForm.config.treeData[0].children.push(item);
+            } else {
+                this.widgetForm.config.choosedCustom[
+                    this.activeIndex
+                ].treeData[0].children.push(item);
+            }
         },
         clone(el) {
-            return this.deepClone(el)
+            return this.deepClone(el);
         },
         deepClone(element) {
             if (!(typeof element === "object")) return element;
@@ -342,7 +523,10 @@ export default {
             return element instanceof Array
                 ? element.map((item) => this.deepClone(item))
                 : Object.entries(element).reduce(
-                      (pre, [key, val]) => ({ ...pre, [key]: this.deepClone(val) }),
+                      (pre, [key, val]) => ({
+                          ...pre,
+                          [key]: this.deepClone(val),
+                      }),
                       {}
                   );
         },
@@ -408,7 +592,6 @@ export default {
             };
             genOpt(json.list);
             this.widgetForm = json;
-
             if (json.list.length > 0) {
                 this.selectedItem = json.list[0];
             }
@@ -430,6 +613,28 @@ export default {
 $primary-color: #7ab8ff;
 $primary-background-color: #ecf5ff;
 
+.white {
+    background-color: #fff;
+}
+
+.configTop {
+    // padding-left: 10px;
+    // padding-top: 5px;
+    // padding-bottom: 5px;
+    // padding-right: 10px;
+    border-bottom: 1px solid #d8cfcf;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    .tab {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        padding-right: 10px;
+        padding-left: 10px;
+        cursor: pointer;
+    }
+}
 .fa-icon {
     height: 1em;
     max-height: 100%;

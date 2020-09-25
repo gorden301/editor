@@ -11,6 +11,8 @@
             />-->
             <a-input
                 v-model="widget.props.defaultValue"
+                @click="widget.eventsConfig['click'].length > 0 ? handleEvents('click') : doNothing"
+                @blur="widget.eventsConfig['blur'].length > 0 ? handleEvents('blur') : doNothing"
                 :type="widget.props.dataType"
                 :placeholder="widget.props.placeholder"
                 :style="styleString"
@@ -298,6 +300,13 @@ export default {
         dynamicComponent: load("../dynamicComponent.vue"),
     },
     computed: {
+        eventMaps() {
+            return {
+                // 'click': this.widget.eventsConfig['click'].length > 0 ? this.handleEvents('click') : this.doNothing,
+                // 'hover': this.widget.eventsConfig['hover'].length > 0 ? this.handleEvents('hover') : this.doNothing,
+                blur: this.widget.eventsConfig['blur'].length > 0 ? this.handleEvents('blur') : this.doNothing,
+            };
+        },
         styleString() {
             return Object.keys(this.widget.style)
                 .map((item, index) => {
@@ -351,7 +360,7 @@ export default {
         data: {
             type: Object,
             default: {},
-        }
+        },
     },
     data() {
         return {
@@ -378,8 +387,7 @@ export default {
             },
         },
     },
-    mounted() {
-    },
+    mounted() {},
     created() {
         if (
             this.widget.options.remote &&
@@ -405,6 +413,21 @@ export default {
         }
     },
     methods: {
+        doNothing() {},
+        handleEvents(type) {
+            let eventDetail = this.data.config.events.filter((item) => {
+                return this.widget.eventsConfig[type][0].event == item.eventName;
+            });
+            this.$set(
+                this.data.list[
+                    this.data.list.findIndex((item) => {
+                        return item.model == eventDetail[0].model;
+                    })
+                ].props,
+                "defaultValue",
+                eventDetail[0].finalValue
+            );
+        },
         evil(str) {
             let fn = Function;
             return new fn("return" + str)();
