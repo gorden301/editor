@@ -1,11 +1,13 @@
 <template>
     <a-layout class="xd-pe-container">
         <a-layout-header
-            style="background: #fff;border-bottom: 1px solid #F7F7F7;"
+            style="background: #fff; border-bottom: 1px solid #f7f7f7"
             class="xd-pe-toolbar"
         >
             <span>
                 <slot name="button"></slot>
+                <a-button type="default" @click="unDo">撤销</a-button>
+                <a-button type="default" @click="reDo">重做</a-button>
                 <a-button type="default" @click="handlePreview">预览</a-button>
             </span>
             <a-radio-group v-model="pageShow" button-style="solid">
@@ -20,7 +22,9 @@
           icon="el-icon-upload2"
           @click="handleUpload"
                 >导入配置</a-button>-->
-                <a-button type="default" @click="handleGenerateJson">查看配置</a-button>
+                <a-button type="default" @click="handleGenerateJson"
+                    >查看配置</a-button
+                >
             </span>
         </a-layout-header>
         <a-layout-content class="xd-pe-main">
@@ -30,7 +34,7 @@
                 @deleteEvents="deleteEvents"
                 v-show="pageShow == 'c'"
             ></event>
-            <a-layout style="height:100%;" v-show="pageShow == 'b'">
+            <a-layout style="height: 100%" v-show="pageShow == 'b'">
                 <structure
                     @chooseTreeData="chooseTreeData"
                     @deleteCus="deleteCus"
@@ -38,26 +42,48 @@
                     :treeData="currentTreeData"
                 ></structure>
             </a-layout>
-            <a-layout style="height: 100%;" v-show="pageShow == 'a'">
+            <a-layout style="height: 100%" v-show="pageShow == 'a'">
                 <a-layout-sider class="components-list" width="250">
-                    <a-tabs tab-position="left" style="height: 100%;">
+                    <a-tabs tab-position="left" style="height: 100%">
                         <a-tab-pane key="1">
-                            <a-icon slot="tab" type="form" />
+                            <!-- <a-tooltip placement="right">
+                                <template slot="title">
+                                    <span>基础组件</span>
+                                </template>
+                                <a-icon slot="tab" type="form" />
+                            </a-tooltip> -->
+                            <div slot="tab">
+                                <a-icon slot="tab" type="form" />
+                                <span>基础</span>
+                            </div>
+                            <!-- <a-icon slot="tab" type="form" /> -->
                             <draggable
                                 tag="ul"
                                 :list="baseComponentsBuildIn"
                                 :clone="clone"
                                 @end="handleMoveEnd"
                                 @start="handleMoveStart"
-                                v-bind="{group:{ name:'componentDragGroup', pull:'clone',put:false},sort:false, ghostClass: 'ghost'}"
+                                v-bind="{
+                                    group: {
+                                        name: 'componentDragGroup',
+                                        pull: 'clone',
+                                        put: false,
+                                    },
+                                    sort: false,
+                                    ghostClass: 'ghost',
+                                }"
                             >
                                 <li
-                                    v-for="(item, index) in baseComponentsBuildIn"
+                                    v-for="(item,
+                                    index) in baseComponentsBuildIn"
                                     :key="index"
                                     class="form-edit-widget-label"
                                 >
                                     <a>
-                                        <i class="icon iconfont" :class="item.icon" />
+                                        <i
+                                            class="icon iconfont"
+                                            :class="item.icon"
+                                        />
                                         <span>{{ item.name }}</span>
                                     </a>
                                 </li>
@@ -65,7 +91,15 @@
                             <draggable
                                 tag="ul"
                                 :list="basicComponents.ext"
-                                v-bind="{group:{ name:'componentDragGroup', pull:'clone',put:false},sort:false, ghostClass: 'ghost'}"
+                                v-bind="{
+                                    group: {
+                                        name: 'componentDragGroup',
+                                        pull: 'clone',
+                                        put: false,
+                                    },
+                                    sort: false,
+                                    ghostClass: 'ghost',
+                                }"
                             >
                                 <li
                                     v-for="(item, index) in basicComponents.ext"
@@ -73,45 +107,80 @@
                                     class="form-edit-widget-label"
                                 >
                                     <a>
-                                        <i class="icon iconfont" :class="item.icon" />
+                                        <i
+                                            class="icon iconfont"
+                                            :class="item.icon"
+                                        />
                                         <span>{{ item.name }}</span>
                                     </a>
                                 </li>
                             </draggable>
                         </a-tab-pane>
                         <a-tab-pane key="2">
-                            <a-icon slot="tab" type="column-width" />
+                            <div slot="tab">
+                                <a-icon slot="tab" type="column-width" />
+                                <span>高级</span>
+                            </div>
+                            <!-- <a-icon slot="tab" type="column-width" /> -->
                             <draggable
                                 tag="ul"
                                 :list="advanceComponents.buildIn"
-                                v-bind="{group:{ name:'componentDragGroup', pull:'clone',put:false},sort:false, ghostClass: 'ghost'}"
+                                v-bind="{
+                                    group: {
+                                        name: 'componentDragGroup',
+                                        pull: 'clone',
+                                        put: false,
+                                    },
+                                    sort: false,
+                                    ghostClass: 'ghost',
+                                }"
                             >
                                 <li
-                                    v-for="(item, index) in advanceComponents.builtIn"
+                                    v-for="(item,
+                                    index) in advanceComponents.builtIn"
                                     :key="index"
                                     class="form-edit-widget-label"
                                 >
                                     <a>
-                                        <i class="icon iconfont" :class="item.icon" />
+                                        <i
+                                            class="icon iconfont"
+                                            :class="item.icon"
+                                        />
                                         <span>{{ item.name }}</span>
                                     </a>
                                 </li>
                             </draggable>
                         </a-tab-pane>
                         <a-tab-pane key="3">
-                            <a-icon slot="tab" type="experiment" />
+                            <div slot="tab">
+                                <a-icon slot="tab" type="experiment" />
+                                <span>布局</span>
+                            </div>
+                            <!-- <a-icon slot="tab" type="experiment" /> -->
                             <draggable
                                 tag="ul"
                                 :list="layoutComponents.buildIn"
-                                v-bind="{group:{ name:'componentDragGroup', pull:'clone',put:false},sort:false, ghostClass: 'ghost'}"
+                                v-bind="{
+                                    group: {
+                                        name: 'componentDragGroup',
+                                        pull: 'clone',
+                                        put: false,
+                                    },
+                                    sort: false,
+                                    ghostClass: 'ghost',
+                                }"
                             >
                                 <li
-                                    v-for="(item, index) in layoutComponents.buildIn"
+                                    v-for="(item,
+                                    index) in layoutComponents.buildIn"
                                     :key="index"
                                     class="form-edit-widget-label data-grid"
                                 >
                                     <a>
-                                        <i class="icon iconfont" :class="item.icon" />
+                                        <i
+                                            class="icon iconfont"
+                                            :class="item.icon"
+                                        />
                                         <span>{{ item.name }}</span>
                                     </a>
                                 </li>
@@ -119,40 +188,66 @@
                         </a-tab-pane>
                     </a-tabs>
                 </a-layout-sider>
-                <a-layout-content :class="{'widget-empty': widgetForm.list.length === 0}">
+                <a-layout-content>
                     <div class="configTop">
-                        <div
+                        <!-- <div
                             :class="['tab', { 'white': activeIndex == 'mainPage' }]"
                             @click="clickMain"
-                        >mainPage</div>
-                        <div
-                            style="justify-content: space-between;"
-                            :class="['tab', { 'white': activeIndex == index }]"
-                            v-for="(item, index) in widgetForm.config.choosedCustom"
-                            :key="index"
-                            @click="chooseCom(item, index)"
+                        >mainPage</div> -->
+                        <draggable
+                            style="justify-content: space-between"
+                            tag="ul"
+                            v-model="widgetForm.list"
+                            :clone="clone"
+                            :class="['tab']"
+                            v-bind="{
+                                group: {
+                                    name: 'componentDragGroup',
+                                    pull: 'clone',
+                                    put: false,
+                                },
+                                sort: false,
+                                ghostClass: 'ghost',
+                            }"
                         >
-                            <span style="margin-right: 15px;">{{ item.name }}</span>
-                            <a-icon type="close" @click="deleteChoosedCus(index)" />
-                        </div>
+                            <li
+                                v-for="(val, index) in widgetForm.list"
+                                :class="[
+                                    'tab-li',
+                                    { white: activeIndex == index },
+                                ]"
+                                :key="index"
+                                @click="chooseCom(val, index)"
+                            >
+                                <span style="margin-right: 15px">{{
+                                    val.keyName
+                                }}</span>
+                                <a-icon
+                                    type="close"
+                                    @click="deleteMap(val, index)"
+                                />
+                            </li>
+                        </draggable>
                         <div class="tab" @click="addComponent">+</div>
                     </div>
                     <form-widget
-                        v-if="$props.type === 'form' && activeIndex == 'mainPage'"
+                        v-if="$props.type === 'form'"
+                        ref="form"
                         :data="widgetForm"
+                        :listKey="listKey"
                         :select="selectedItem"
                         @item-select-event="onSelectionChange"
                         @upload-template="setJSON"
                         @addTree="addTree"
                     />
-                    <form-widget
+                    <!-- <form-widget
                         v-if="$props.type === 'form' && activeIndex !== 'mainPage'"
                         :data="currentForm"
                         :select="selectedItem"
                         @item-select-event="onSelectionChange"
                         @upload-template="setJSON"
                         @addTree="addTree"
-                    />
+                    /> -->
                     <page-widget
                         v-else-if="$props.type === 'page'"
                         :data="widgetForm"
@@ -163,28 +258,33 @@
                 </a-layout-content>
 
                 <a-layout-sider
-                    style="background: #fff;"
+                    style="background: #fff"
                     class="widget-config-container"
                     width="320"
                 >
                     <a-layout>
-                        <a-layout-header style="background: #fff;padding: 0;">
+                        <a-layout-header style="background: #fff; padding: 0">
                             <div
                                 class="config-tab"
-                                :class="{active: configTab === 'widget'}"
+                                :class="{ active: configTab === 'widget' }"
                                 @click="handleConfigSelect('widget')"
-                            >字段属性</div>
+                            >
+                                字段属性
+                            </div>
                             <div
                                 class="config-tab"
-                                :class="{active: configTab === 'form'}"
+                                :class="{ active: configTab === 'form' }"
                                 @click="handleConfigSelect('form')"
-                            >表单属性</div>
+                            >
+                                表单属性
+                            </div>
                         </a-layout-header>
                         <a-layout-content class="config-content">
                             <formItemConf
                                 v-if="$props.type === 'form'"
                                 v-show="configTab === 'widget'"
                                 :item="selectedItem"
+                                :listKey="listKey"
                                 :data="widgetForm"
                             />
                             <pageItemConf
@@ -207,6 +307,19 @@
                 </a-layout-sider>
             </a-layout>
         </a-layout-content>
+        <a-modal
+            v-model="jsonVisible"
+            width="50%"
+            title="查看代码"
+            append-to-body
+        >
+            <textarea
+                v-model="formattedJSON"
+                readonly="readonly"
+                class="code-textarea"
+                @mouseenter="$event.target.select()"
+            />
+        </a-modal>
         <pre-dialog
             ref="widgetPreview"
             :visible="previewVisible"
@@ -218,16 +331,12 @@
             <generate-form
                 v-if="previewVisible"
                 ref="generateForm"
+                :listKey="listKey"
                 insite="true"
-                :data="widgetForm"
+                :form="widgetForm"
+                :data="widgetForm.list[listKey]"
                 :value="widgetModels"
             >
-                <!--
-            <template v-slot:blank="scope">
-              宽度：<el-input v-model="scope.model.blank.width" style="width: 100px"></el-input>
-              高度：<el-input v-model="scope.model.blank.height" style="width: 100px"></el-input>
-            </template>
-                -->
             </generate-form>
         </pre-dialog>
         <a-drawer
@@ -250,13 +359,21 @@
                     v-for="(item, index) in widgetForm.config.customComponents"
                     :key="index"
                     :value="item.name"
-                >{{ item.name }}</a-select-option>
+                    >{{ item.name }}</a-select-option
+                >
             </a-select>
             <div>
-                <a-button type="primary" @click="confirmComponent">确定</a-button>
+                <a-button type="primary" @click="confirmComponent"
+                    >确定</a-button
+                >
                 <a-button @click="closeDrawer">取消</a-button>
             </div>
         </a-drawer>
+        <make-new
+            :arrLength="widgetForm.list.length"
+            ref="makeNew"
+            @addMap="addMap"
+        ></make-new>
     </a-layout>
 </template>
 
@@ -264,21 +381,29 @@
 import draggable from "vuedraggable";
 import builtInComponents from "../builtInComponents";
 // import { deepClone } from "../utils/utils";
-// import GenerateForm from './components/GenerateForm'
+import GenerateForm from "./components/GenerateForm";
+import formWidget from "./components/Form";
+import formItemConf from "./components/FormItemConfig";
+import formConfig from "./components/FormConfig";
+import preDialog from "./components/PreDialog";
+import makeNew from "./components/MakeNew";
+import Event from "./pages/Event";
+import Structure from "./pages/Structure";
 export default {
     name: "XdFormEditor",
     components: {
+        makeNew,
         draggable,
-        formConfig: () => import("./components/FormConfig"),
-        formWidget: () => import("./components/Form"),
-        formItemConf: () => import("./components/FormItemConfig"),
+        formConfig,
+        formWidget,
+        formItemConf,
         pageConfig: () => import("./components/PageConfig"),
         pageWidget: () => import("./components/Page"),
         pageItemConf: () => import("./components/PageItemConfig"),
-        preDialog: () => import("./components/PreDialog"),
-        generateForm: () => import("./components/GenerateForm"),
-        Event: () => import("./pages/Event"),
-        Structure: () => import("./pages/Structure"),
+        preDialog,
+        GenerateForm,
+        Event,
+        Structure,
     },
     props: {
         extList: {
@@ -292,9 +417,11 @@ export default {
     },
     data() {
         return {
+            activeName: "mainPage",
+            listKey: 0,
             drawerItems: [],
             drawerVisible: false,
-            activeIndex: "mainPage",
+            activeIndex: 0,
             replaceFields: {
                 title: "name",
                 key: "model",
@@ -313,7 +440,15 @@ export default {
                         },
                     ],
                 },
-                list: [],
+                list: [
+                    {
+                        type: "form",
+                        keyName: "mainPage",
+                        list: [],
+                        arr: [{}],
+                        curIndex: 0,
+                    },
+                ],
             },
             pageShow: "a",
             currentTreeData: [],
@@ -326,7 +461,6 @@ export default {
             uploadVisible: false,
             widgetModels: {},
             htmlTemplate: "",
-            widgetModels: {},
             jsonTemplate: "",
             jsonCopy: JSON.parse(JSON.stringify(builtInComponents)),
             baseComponentsBuildIn: JSON.parse(
@@ -407,11 +541,44 @@ export default {
     },
     mounted() {
         this.$nextTick(() => {
-            this.currentTreeData = this.widgetForm.config.treeData
-            this.currentTreeData.splice()
+            this.currentTreeData = this.widgetForm.config.treeData;
+            this.currentTreeData.splice();
+        });
+        this.bus.$on("changeArr", (index) => {
+            this.activeIndex = index;
+            this.listKey = index;
+            console.log(this);
         });
     },
     methods: {
+        deleteMap(key, index) {
+            this.widgetForm.list.splice(index, 1);
+        },
+        addMap(obj) {
+            this.widgetForm.list.push(obj);
+        },
+        unDo() {
+            if (this.$refs.form.step >= 0) {
+                this.$refs.form.step--;
+                this.$refs.form.data.list[this.activeIndex].list = this.$refs.form.formHistory[
+                    this.$refs.form.step
+                ] || [];
+                this.$refs.form.data.list[this.activeIndex].list.splice();
+            }
+        },
+        reDo() {
+            // if (this.$refs.form.step < this.$refs.form.formHistory.length - 1) {
+            //     this.$refs.form.step++;
+            //     this.$refs.form.data.list[this.activeIndex].list = this.$refs.form.formHistory[
+            //         this.$refs.form.step
+            //     ];
+            //     this.$refs.form.data.list[this.activeIndex].list.splice();
+            // }
+             this.$refs.form.step = -1
+            this.$refs.form.data.list[this.activeIndex].list = []
+            this.$refs.form.data.list[this.activeIndex].list.splice();
+
+        },
         chooseTreeData(obj) {
             if (obj.type == "mainPage") {
                 this.currentTreeData = this.widgetForm.config.treeData;
@@ -443,9 +610,11 @@ export default {
         deleteChoosedCus(index) {
             this.widgetForm.config.choosedCustom.splice(index, 1);
         },
-        chooseCom(item, index) {
+        chooseCom(val, index) {
+            this.activeName = val.keyName;
             this.activeIndex = index;
-            this.currentForm = item.widgetForm;
+            this.listKey = index;
+            // this.currentForm = item.widgetForm;
         },
         handleChange(value, option) {},
         confirmComponent() {
@@ -493,7 +662,8 @@ export default {
             this.widgetForm.config.customComponents.push(obj);
         },
         addComponent() {
-            this.drawerVisible = true;
+            this.$refs["makeNew"].diaVisible = true;
+            // this.drawerVisible = true;
         },
         handleTest() {},
         deleteEvents(index) {
@@ -506,13 +676,13 @@ export default {
         saveForm() {},
         addTree(item) {
             console.log("===============>插入树元素", item);
-            if (this.activeIndex == "mainPage") {
-                this.widgetForm.config.treeData[0].children.push(item);
-            } else {
-                this.widgetForm.config.choosedCustom[
-                    this.activeIndex
-                ].treeData[0].children.push(item);
-            }
+            // if (this.activeIndex == "mainPage") {
+            //     this.widgetForm.config.treeData[0].children.push(item);
+            // } else {
+            //     this.widgetForm.config.choosedCustom[
+            //         this.activeIndex
+            //     ].treeData[0].children.push(item);
+            // }
         },
         clone(el) {
             return this.deepClone(el);
@@ -552,10 +722,15 @@ export default {
         },
         getJson() {
             const opt = this.$merge({}, this.widgetForm);
-            const minify = function (list) {
-                list.forEach((item) => {
+            const minify = (list) => {
+                list.forEach((item, index) => {
+                    console.log(this);
+                    if (this.dragForm) {
+                        delete item.list;
+                    }
                     delete item.icon;
                     delete item.key;
+                    // if(this.listKey)
                     if (item.type === "grid" || item.type === "tab") {
                         item.columns.forEach((tmp) => {
                             minify(tmp.list);
@@ -575,7 +750,7 @@ export default {
             }
             json = JSON.parse(JSON.stringify(json));
             const genOpt = function (list) {
-                list.forEach((item) => {
+                list.forEach((item, index) => {
                     delete item.icon;
                     item.key =
                         ".key." +
@@ -613,6 +788,16 @@ export default {
 $primary-color: #7ab8ff;
 $primary-background-color: #ecf5ff;
 
+ul {
+    margin-top: 0;
+    margin-bottom: 0 !important;
+}
+.tab-li {
+    list-style-type: none;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
 .white {
     background-color: #fff;
 }
@@ -626,6 +811,10 @@ $primary-background-color: #ecf5ff;
     height: 40px;
     display: flex;
     align-items: center;
+    background-color: #f3f0f0;
+    position: sticky;
+    top: 0;
+    z-index: 99999;
     .tab {
         display: flex;
         align-items: center;
@@ -764,7 +953,7 @@ aside.components-list {
             margin: 0;
             padding: 5px 10px 18px;
             position: relative;
-
+            z-index: 99;
             &.is_req {
                 .el-form-item__label::before {
                     color: #f56c6c;
@@ -784,6 +973,7 @@ aside.components-list {
             }
 
             &:hover {
+                // position: relative;
                 background: $primary-background-color;
                 border-left: 5px solid $primary-background-color;
             }
@@ -816,6 +1006,19 @@ aside.components-list {
             padding: 0;
             position: absolute;
             right: 70px;
+            width: 2.2em;
+            z-index: 1009;
+        }
+
+        .widget-action-edit {
+            bottom: -35px;
+            -webkit-box-sizing: initial;
+            box-sizing: initial;
+            font-size: 16px;
+            height: 2.2em;
+            padding: 0;
+            position: absolute;
+            right: 120px;
             width: 2.2em;
             z-index: 1009;
         }
@@ -868,7 +1071,7 @@ aside.components-list {
 
 .widget-config-container {
     position: relative;
-
+    overflow: auto;
     .ant-layout {
         background: none;
     }
@@ -934,7 +1137,7 @@ aside.components-list {
     background-color: #f4f4f4;
     border: 1px solid #eee;
     font-family: monospace;
-    height: 400px;
+    height: 700px;
     margin: 0 -10px;
     outline: none;
     overflow: auto;

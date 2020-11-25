@@ -89,28 +89,28 @@ export default [
             pattern: ''
         }
     },
-    {
-        type: 'number',
-        category: 'basic',
-        name: '计数器',
-        icon: 'icon-number',
-        eventsConfig: {
-            'click': [],
-            'blur': [],
-            'hover': []
-        },
-        options: {
-            allowCondition: false,
-            width: '',
-            required: false,
-            defaultValue: 0,
-            min: '',
-            max: '',
-            step: 1,
-            disabled: false,
-            controlsPosition: ''
-        }
-    },
+    // {
+    //     type: 'number',
+    //     category: 'basic',
+    //     name: '计数器',
+    //     icon: 'icon-number',
+    //     eventsConfig: {
+    //         'click': [],
+    //         'blur': [],
+    //         'hover': []
+    //     },
+    //     options: {
+    //         allowCondition: false,
+    //         width: '',
+    //         required: false,
+    //         defaultValue: 0,
+    //         min: '',
+    //         max: '',
+    //         step: 1,
+    //         disabled: false,
+    //         controlsPosition: ''
+    //     }
+    // },
     {
         type: 'radio',
         category: 'basic',
@@ -194,6 +194,11 @@ export default [
             },
             remoteFunc: ''
         },
+        eventsConfig: {
+            'click': [],
+            'blur': [],
+            'hover': []
+        },
         style: {
             width: '',
             display: 'block'
@@ -230,6 +235,11 @@ export default [
             required: false,
             width: ''
         },
+        eventsConfig: {
+            'click': [],
+            'blur': [],
+            'hover': []
+        },
         style: {
             width: ''
         }
@@ -239,8 +249,20 @@ export default [
         category: 'basic',
         name: '日期选择器',
         icon: 'icon-date',
-        options: {
-            allowCondition: false,
+        eventsConfig: {
+            'click': [],
+            'blur': [],
+            'hover': []
+        },
+        style: {
+            width: ''
+        },
+        props: {
+            conditionConfig: {
+                allowCondition: false,
+                type: 'and',
+                conditions: []
+            },
             defaultValue: '',
             readonly: false,
             disabled: false,
@@ -273,6 +295,11 @@ export default [
             // disabled: false,
             allowHalf: false,
             required: false
+        },
+        eventsConfig: {
+            'click': [],
+            'blur': [],
+            'hover': []
         },
         style: {
         }
@@ -318,6 +345,11 @@ export default [
             },
             remoteFunc: ''
         },
+        eventsConfig: {
+            'click': [],
+            'blur': [],
+            'hover': []
+        },
         style: {}
     },
     {
@@ -334,6 +366,11 @@ export default [
             },
             required: false,
             disabled: false
+        },
+        eventsConfig: {
+            'click': [],
+            'blur': [],
+            'hover': []
         },
         style: {}
     },
@@ -358,6 +395,11 @@ export default [
             range: false,
             width: ''
         },
+        eventsConfig: {
+            'click': [],
+            'blur': [],
+            'hover': []
+        },
         style: {}
     },
     {
@@ -365,6 +407,11 @@ export default [
         category: 'layout',
         name: '栅格布局',
         icon: 'icon-grid-',
+        eventsConfig: {
+            'click': [],
+            'blur': [],
+            'hover': []
+        },
         columns: [
             {
                 span: 12,
@@ -379,7 +426,14 @@ export default [
             gutter: 0,
             justify: 'start',
             align: 'top'
-        }
+        },
+        props: {
+            conditionConfig: {
+                allowCondition: false,
+                type: 'and',
+                conditions: []
+            },
+        },
     },
     {
         type: 'tab',
@@ -387,6 +441,11 @@ export default [
         name: 'Tab切换',
         icon: 'fa fa-window-restore',
         defaultValue: '0',
+        eventsConfig: {
+            'click': [],
+            'blur': [],
+            'hover': []
+        },
         columns: [
             {
                 label: '标签1',
@@ -407,6 +466,19 @@ export default [
             formLabelWidth: 80,
             formSize: 'small',
             class: ''
-        }
+        },
+        style: {
+            width: '',
+            height: ''
+        },
+        props: {
+            tabPosition: 'top',
+            hideLabel: false,
+            conditionConfig: {
+                allowCondition: false,
+                type: 'and',
+                conditions: []
+            },
+        },
     }
 ]

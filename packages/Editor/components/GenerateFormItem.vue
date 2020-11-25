@@ -1,5 +1,8 @@
 <template>
     <a-form-item v-if="conditonRule" :label="widget.name" :prop="widget.model">
+        <!-- <template v-if="widget.type === 'form'"> 
+
+        </template> -->
         <template v-if="widget.type === 'input'">
             <!-- <a-input
                 v-if="widget.props.dataType === 'number' || widget.props.dataType === 'integer' || widget.props.dataType === 'float'"
@@ -64,7 +67,7 @@
                     v-for="(item, index) in (widget.props.remote ? widget.props.remoteOptions : widget.props.options)"
                     :key="index"
                     :style="styleString"
-                    :label="item.value"
+                    :value="item.value"
                 >
                     <template v-if="widget.props.remote">{{ item.label }}</template>
                     <template v-else>{{ widget.props.showLabel ? item.label : item.value }}</template>
@@ -78,7 +81,7 @@
                     v-for="(item, index) in (widget.props.remote ? widget.props.remoteOptions : widget.props.options)"
                     :key="index"
                     :style="styleString"
-                    :label="item.value"
+                    :value="item.value"
                 >
                     <template v-if="widget.props.remote">{{ item.label }}</template>
                     <template v-else>{{ widget.props.showLabel ? item.label : item.value }}</template>
@@ -148,12 +151,14 @@
                 :style="count"
                 :filterable="widget.props.filterable"
             >
-                <a-option
+                <a-select-option
                     v-for="item in (widget.props.remote ? widget.options.remoteOptions : widget.props.options)"
                     :key="item.value"
                     :value="item.value"
                     :label="widget.props.showLabel || widget.props.remote?item.label:item.value"
-                />
+                >
+                {{ item.label }}
+                </a-select-option>
             </a-select>
         </template>
 
@@ -353,6 +358,10 @@ export default {
             type: Object,
             default: Object,
         },
+        form: {
+            type: Object,
+            default: {},
+        },
         readonly: {
             type: Boolean,
             default: false,
@@ -415,7 +424,7 @@ export default {
     methods: {
         doNothing() {},
         handleEvents(type) {
-            let eventDetail = this.data.config.events.filter((item) => {
+            let eventDetail = this.form.config.events.filter((item) => {
                 return this.widget.eventsConfig[type][0].event == item.eventName;
             });
             this.$set(

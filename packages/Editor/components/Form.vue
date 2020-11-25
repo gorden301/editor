@@ -1,13 +1,13 @@
 <template>
     <a-form-model v-bind="data.config" class="widget-form-container">
         <draggable
-            v-model="data.list"
+            v-model="data.list[listKey].list"
             class="widget-form-list"
             v-bind="{group:'componentDragGroup', ghostClass: 'ghost'}"
             @end="handleMoveEnd"
             @add="handleWidgetAdd"
         >
-            <template v-for="(element, index) in data.list">
+            <template v-for="(element, index) in data.list[listKey].list">
                 <template v-if="element.type === 'grid'">
                     <div
                         v-if="element && element.key"
@@ -64,6 +64,9 @@
                         />
                     </div>
                 </template>
+                <!-- <template v-else-if="element.type == 'form'">
+
+                </template> -->
                 <template v-else-if="element.type === 'tab'">
                     <div
                         v-if="element && element.key"
@@ -72,7 +75,7 @@
                         style="position: relative;"
                     >
                         <a-form-model-item
-                            :label="element.name"
+                            :label="element.props.hideLabel ? '' : element.name"
                             :label-width="(element.options.hideLabel ? '0px' : undefined)"
                             class="widget-grid"
                             :class="{active: select.key === element.key, 'is_req': element.options.required}"
@@ -86,9 +89,9 @@
                             >
                                 <a-tab-pane
                                     v-for="(col, colIndex) in element.columns"
-                                    :key="colIndex"
+                                    :key="col.name"
                                     :name="''+col.name"
-                                    :label="col.label ? col.label : 'Tab' + (colIndex + 1)"
+                                    :tab="col.label ? col.label : 'Tab' + (colIndex + 1)"
                                 >
                                     <tab-inline-form
                                         :size="element.options.formSize"
@@ -188,8 +191,10 @@
                         :key="element.key"
                         :element="element"
                         :select="select"
+                        :curIndex="data.list[listKey].list[index].curIndex"
                         :index="index"
                         :data="data"
+                        :listKey="listKey"
                         @click.native="handleSelectWidget(index)"
                     />
                 </template>
@@ -201,10 +206,11 @@
 <script>
 import draggable from "vuedraggable";
 import formItem from "./FormItem.vue";
+import tabInlineForm from './tabInlineForm'
 // import tabInlineForm from './tabInlineForm.vue'
 export default {
     components: {
-        // tabInlineForm,
+        tabInlineForm,
         draggable,
         formItem,
     },
@@ -217,11 +223,32 @@ export default {
             type: Object,
             default: Object,
         },
+        listKey: {
+            type: [String, Number]
+        }
     },
     data() {
-        return {};
+        return {
+            currentList: [],
+            step: -1,
+            formHistory: []
+        };
     },
-    watch: {},
+    watch: {
+        // listKey: {
+        //     deep: true,
+        //     handler(val) {
+        //         this.currentList = this.data.list[val]
+        //         this.currentList.splice()
+        //     },
+        // },
+        // currentList: {
+        //     deep: true,
+        //     handler(val) {
+                
+        //     },
+        // },
+    },
     mounted() {
         document.body.ondrop = function (event) {
             const isFirefox =
@@ -231,18 +258,29 @@ export default {
                 event.stopPropagation();
             }
         };
+        this.currentList = this.data.list[this.listKey]
     },
     methods: {
         handleMoveEnd({ newIndex, oldIndex }) {
         },
         handleSelectWidget(index) {
-            this.$emit("item-select-event", this.data.list[index]);
+            this.$emit("item-select-event", this.data.list[this.listKey].list[index]);
         },
         handleWidgetAdd(evt) {
             console.log(evt);
             const newIndex = evt.newIndex;
+            if(this.data.list[this.listKey].list[newIndex].type == 'form') {
+                delete this.data.list[this.listKey].list[newIndex].list
+                this.data.list[this.listKey].list[newIndex].dragForm = true
+            }
+            // if(evt.from.dataset.key) {
+            //     this.data.list[this.listKey].list.splice(newIndex, 0, {
+            //         type: evt.from.dataset.type,
+            //         keyName: evt.from.dataset.key
+            //     })
+            // }
             // 为拖拽到容器的元素添加唯一 key
-            const type = this.data.list[newIndex].type;
+            const type = this.data.list[this.listKey].list[newIndex].type;
             const key =
                 ".key." +
                 type +
@@ -250,10 +288,10 @@ export default {
                 Date.parse(new Date()) +
                 "." +
                 Math.ceil(Math.random() * 99999);
-            this.$set(this.data.list, newIndex, {
-                ...this.data.list[newIndex],
+            this.$set(this.data.list[this.listKey].list, newIndex, {
+                ...this.data.list[this.listKey].list[newIndex],
                 options: {
-                    ...this.data.list[newIndex].options,
+                    ...this.data.list[this.listKey].list[newIndex].options,
                 },
                 key,
                 // 绑定键值
@@ -261,15 +299,15 @@ export default {
                 rules: [],
             });
             if (
-                this.data.list[newIndex].type === "radio" ||
-                this.data.list[newIndex].type === "checkbox" ||
-                this.data.list[newIndex].type === "select"
+                this.data.list[this.listKey].list[newIndex].type === "radio" ||
+                this.data.list[this.listKey].list[newIndex].type === "checkbox" ||
+                this.data.list[this.listKey].list[newIndex].type === "select"
             ) {
-                this.$set(this.data.list, newIndex, {
-                    ...this.data.list[newIndex],
+                this.$set(this.data.list[this.listKey].list, newIndex, {
+                    ...this.data.list[this.listKey].list[newIndex],
                     options: {
-                        ...this.data.list[newIndex].options,
-                        options: this.data.list[newIndex].props.options.map(
+                        ...this.data.list[this.listKey].list[newIndex].options,
+                        options: this.data.list[this.listKey].list[newIndex].props.options.map(
                             (item) => ({
                                 ...item,
                             })
@@ -278,23 +316,25 @@ export default {
                 });
             }
             if (
-                this.data.list[newIndex].type === "grid" ||
-                this.data.list[newIndex].type === "tab"
+                this.data.list[this.listKey].list[newIndex].type === "grid" ||
+                this.data.list[this.listKey].list[newIndex].type === "tab"
             ) {
-                this.$set(this.data.list, newIndex, {
-                    ...this.data.list[newIndex],
-                    columns: this.data.list[newIndex].columns.map((item) => ({
+                this.$set(this.data.list[this.listKey].list, newIndex, {
+                    ...this.data.list[this.listKey].list[newIndex],
+                    columns: this.data.list[this.listKey].list[newIndex].columns.map((item) => ({
                         ...item,
                     })),
                 });
             }
 
-            if (this.data.list[newIndex].type === "formTemplate") {
-                console.log(this.data.list[newIndex]);
-                this.$emit("upload-template", this.data.list[newIndex]);
+            if (this.data.list[this.listKey].list[newIndex].type === "formTemplate") {
+                console.log(this.data.list[this.listKey].list[newIndex]);
+                this.$emit("upload-template", this.data.list[this.listKey].list[newIndex]);
             }
-            this.$emit("item-select-event", this.data.list[newIndex]);
-            this.$emit("addTree", this.data.list[newIndex])
+            this.step ++
+            this.formHistory.push(this.data.list[this.listKey].list)
+            this.$emit("item-select-event", this.data.list[this.listKey].list[newIndex]);
+            this.$emit("addTree", this.data.list[this.listKey].list[newIndex])
         },
         handleWidgetColAdd($event, row, colIndex) {
             console.log("coladd", $event, row, colIndex);
@@ -312,6 +352,10 @@ export default {
                     );
                 row.columns[colIndex].list.splice(newIndex, 1);
                 return false;
+            }
+            if(row.columns[colIndex].list[newIndex].type == 'form') {
+                delete row.columns[colIndex].list[newIndex].list
+                row.columns[colIndex].list[newIndex].dragForm = true
             }
             const type = row.columns[colIndex].list[newIndex].type;
             const key =
@@ -353,17 +397,17 @@ export default {
             );
         },
         handleWidgetDelete(index) {
-            if (this.data.list.length - 1 === index) {
+            if (this.data.list[this.listKey].list.length - 1 === index) {
                 if (index === 0) {
                     this.$emit("item-select-event", {});
                 } else {
-                    this.$emit("item-select-event", this.data.list[index - 1]);
+                    this.$emit("item-select-event", this.data.list[this.listKey].list[index - 1]);
                 }
             } else {
-                this.$emit("item-select-event", this.data.list[index + 1]);
+                this.$emit("item-select-event", this.data.list[this.listKey].list[index + 1]);
             }
             this.$nextTick(() => {
-                this.data.list.splice(index, 1);
+                this.data.list[this.listKey].list.splice(index, 1);
             });
             this.$emit("item-select-event", {});
         },

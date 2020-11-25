@@ -13,7 +13,9 @@
                 :placeholder="element.props.placeholder"
             />
         </template>
-
+        <template v-if="element.type === 'form'">
+            <span @click="goEdit" style="cursor:pointer;pointer-events: auto;">{{ element.keyName }}</span>
+        </template>
         <template v-if="element.type === 'textarea'">
             <a-input
                 v-model="element.props.defaultValue"
@@ -40,7 +42,7 @@
                     v-for="(item, _index) in element.props.options"
                     :key="item.value + _index"
                     :style="styleString"
-                    :label="item.value"
+                    :value="item.value"
                 >{{ element.props.showLabel ? item.label : item.value }}</a-radio>
             </a-radio-group>
         </template>
@@ -54,7 +56,7 @@
                     v-for="(item, _index) in element.props.options"
                     :key="item.value + _index"
                     :style="{display: element.style.display }"
-                    :label="item.value"
+                    :value="item.value"
                 >{{ element.props.showLabel ? item.label : item.value }}</a-checkbox>
             </a-checkbox-group>
         </template>
@@ -121,7 +123,8 @@
                     :key="item.value"
                     :value="item.value"
                     :label="element.props.showLabel?item.label:item.value"
-                ></a-select-option>
+                >
+                {{ item.label }}</a-select-option>
             </a-select>
         </template>
 
@@ -165,11 +168,7 @@
 
         <template v-if="element.type === 'tab'">
             <div
-                style="background: #ccc;
-  color: #999;
-  height: 50px;
-  line-height: 50px;
-  text-align: center;"
+                :style="styleString"
             >Tab区域</div>
         </template>
 
@@ -183,7 +182,16 @@
         :component="element.componentPath"
       />
         </template>-->
-
+        <a-button
+            v-if="element.type == 'form' && select.key === element.key"
+            slot="extra"
+            title="编辑"
+            icon="form"
+            class="widget-action-edit"
+            shape="circle"
+            type="primary"
+            @click.stop="goEdit()"
+        />
         <a-button
             v-if="select.key === element.key"
             slot="extra"
@@ -227,6 +235,12 @@ export default {
             type: Object,
             default: Object,
         },
+        listKey: {
+            type: [String, Number]
+        },
+        curIndex: {
+            type: [String, Number]
+        }
     },
     data() {
         return {
@@ -238,26 +252,26 @@ export default {
         // elementCopy() {
         //     return JSON.parse(JSON.stringify(this.element))
         // },
-        conditonRule() {
-            if(!this.element.props.conditionConfig.allowCondition || this.element.props.conditionConfig.conditions.length == 0) {
-                return true
-            } else {
-                let arr = this.element.props.conditionConfig.conditions.map(item => {
-                    let obj = this.data.list.filter(k => {
-                        return k.model == item.modelName
-                    })[0]
-                    if(!obj) {
-                        return true
-                    }
-                    return `${obj.props.defaultValue}${item.type}${item.value}`
-                })
-                if(this.element.props.conditionConfig.type == 'and') {
-                    return this.evil(arr.join('&&'))
-                } else {
-                    return this.evil(arr.join('||'))
-                }
-            }
-        },
+        // conditonRule() {
+        //     if(!this.element.props.conditionConfig.allowCondition || this.element.props.conditionConfig.conditions.length == 0) {
+        //         return true
+        //     } else {
+        //         let arr = this.element.props.conditionConfig.conditions.map(item => {
+        //             let obj = this.data.list.filter(k => {
+        //                 return k.model == item.modelName
+        //             })[0]
+        //             if(!obj) {
+        //                 return true
+        //             }
+        //             return `${obj.props.defaultValue}${item.type}${item.value}`
+        //         })
+        //         if(this.element.props.conditionConfig.type == 'and') {
+        //             return this.evil(arr.join('&&'))
+        //         } else {
+        //             return this.evil(arr.join('||'))
+        //         }
+        //     }
+        // },
         styleString() {
             let styleObj = this.element.style;
             return Object.keys(styleObj)
@@ -269,32 +283,36 @@ export default {
     },
     mounted() {},
     methods: {
+        goEdit() {
+            console.log('========>触发index')
+            this.bus.$emit('changeArr', this.curIndex)
+        },
         evil(str) {
             let fn = Function
             return new fn('return' + str)()
         },
         handleWidgetDelete(index) {
-            if (this.data.list.length - 1 === index) {
+            if (this.data.list[this.listKey].list.length - 1 === index) {
                 if (index === 0) {
                     this.$emit("item-select-event", {});
                 } else {
-                    this.$emit("item-select-event", this.data.list[index - 1]);
+                    this.$emit("item-select-event", this.data.list[this.listKey].list[index - 1]);
                 }
             } else {
-                this.$emit("item-select-event", this.data.list[index + 1]);
+                this.$emit("item-select-event", this.data.list[this.listKey].list[index + 1]);
             }
 
             this.$nextTick(() => {
-                this.data.list.splice(index, 1);
+                this.data.list[this.listKey].list.splice(index, 1);
             });
         },
         handleWidgetClone(index) {
             let cloneData = this.$merge(
-                { ...this.data.list[index] },
+                { ...this.data.list[this.listKey].list[index] },
                 {
                     key:
                         ".key." +
-                        this.data.list[index].type +
+                        this.data.list[this.listKey].list[index].type +
                         "." +
                         Date.parse(new Date()) +
                         "." +
@@ -303,8 +321,8 @@ export default {
             );
 
             if (
-                this.data.list[index].type === "radio" ||
-                this.data.list[index].type === "checkbox"
+                this.data.list[this.listKey].list[index].type === "radio" ||
+                this.data.list[this.listKey].list[index].type === "checkbox"
             ) {
                 cloneData = {
                     ...cloneData,
@@ -317,10 +335,10 @@ export default {
                 };
             }
 
-            this.data.list.splice(index, 0, cloneData);
+            this.data.list[this.listKey].list.splice(index, 0, cloneData);
 
             this.$nextTick(() => {
-                this.$emit("item-select-event", this.data.list[index + 1]);
+                this.$emit("item-select-event", this.data.list[this.listKey].list[index + 1]);
             });
         },
     },

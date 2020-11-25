@@ -4,6 +4,7 @@ import XdPageEditor from './Editor'
 // import XdPageGenerator from './Generator'
 import merge from 'deepmerge'
 Vue.prototype.$merge = merge
+Vue.prototype.bus = new Vue();
 // Vue.use(XDAppUI)
 const components = [XdPageEditor]
 const install = function (Vue) {

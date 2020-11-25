@@ -1,121 +1,165 @@
 <template>
-    <a-form
-        ref="generateForm"
-        :size="data.config.size"
-        :model="models"
-        :rules="rules"
-        :laba-position="data.config.labelPosition"
-        :laba-width="data.config.inline ? undefined : data.config.labelWidth + 'px'"
-        :inline="data.config.inline"
-        v-bind="$attrs"
-    >
-        <slot name="header" />
-        <template v-for="item in data.list">
-            <template v-if="item.type === 'grid'">
-                <a-row
-                    :key="item.key"
-                    type="flex"
-                    :gutter="item.options.gutter ? item.options.gutter : 0"
-                    :justify="item.options.justify"
-                    :align="item.options.align"
-                >
-                    <a-col
-                        v-for="(col, colIndex) in item.columns"
-                        :key="colIndex"
-                        :span="col.span"
+    <div>
+        <a-form
+            ref="generateForm"
+            :model="models"
+            :rules="rules"
+            v-bind="$attrs"
+        >
+            <slot name="header" />
+            <template v-for="item in data.list">
+                <template v-if="item.type === 'grid'">
+                    <a-row
+                        :key="item.key"
+                        type="flex"
+                        :gutter="item.options.gutter ? item.options.gutter : 0"
+                        :justify="item.options.justify"
+                        :align="item.options.align"
                     >
-                        <template v-for="citem in col.list">
-                            <a-form-item
-                                v-if="citem.type === 'blank'"
-                                :key="citem.key"
-                                :label="citem.name"
-                                :prop="citem.model"
-                            >
-                                <slot :name="citem.model" :model="models" />
-                            </a-form-item>
-                            <generate-form-item
-                                v-else
-                                :key="citem.key"
-                                :models.sync="models"
-                                :rules="rules"
-                                :widget="citem"
-                                preview="preview"
-                                :readonly="readonly"
-                            />
-                        </template>
-                    </a-col>
-                </a-row>
-            </template>
-
-            <template v-else-if="item.type === 'tab'">
-                <a-form-item
-                    :key="'tab_'+item.name"
-                    :label="item.options.hideLabel ? '':tem.name"
-                    :laba-width="(item.options.hideLabel ? '0px' : undefined)"
-                >
-                    <a-tabs
-                        v-model="models[item.model || item.key]"
-                        :tab-position="item.options.tabPosition"
-                        :type="item.options.type"
-                        :class="item.options.class"
-                    >
-                        <a-tab-pane
+                        <a-col
                             v-for="(col, colIndex) in item.columns"
                             :key="colIndex"
-                            :name="''+col.name"
-                            :label="col.label ? col.label : 'Tab' + (colIndex + 1)"
+                            :span="col.span"
                         >
-                            <tab-inline-form
-                                :size="item.options.formSize"
-                                :laba-position="item.options.formLabelPosition"
-                                :laba-width="item.options.formLabelWidth + 'px'"
-                            >
-                                <template v-for="citem in col.list">
-                                    <a-form-item
-                                        v-if="citem.type === 'blank'"
-                                        :key="citem.key"
-                                        :label="citem.label"
-                                        :prop="citem.model"
+                            <template v-for="citem in col.list">
+                                <a-form-item
+                                    v-if="citem.type === 'blank'"
+                                    :key="citem.key"
+                                    :label="citem.name"
+                                    :prop="citem.model"
+                                >
+                                    <slot :name="citem.model" :model="models" />
+                                </a-form-item>
+                                <template v-else-if="citem.type === 'form'">
+                                    <generate-form
+                                        :key="citem.type"
+                                        :data="citem"
+                                        :value="value"
                                     >
-                                        <slot :name="citem.model" :model="models" />
-                                    </a-form-item>
-                                    <generate-form-item
-                                        v-else
-                                        :key="citem.key"
-                                        :models.sync="models"
-                                        :rules="rules"
-                                        :widget="citem"
-                                        :preview="preview"
-                                        :readonly="readonly"
-                                    />
+                                    </generate-form>
                                 </template>
-                            </tab-inline-form>
-                        </a-tab-pane>
-                    </a-tabs>
-                </a-form-item>
-            </template>
+                                <generate-form-item
+                                    v-else
+                                    :key="citem.key"
+                                    :models.sync="models"
+                                    :rules="rules"
+                                    :widget="citem"
+                                    preview="preview"
+                                    :readonly="readonly"
+                                />
+                            </template>
+                        </a-col>
+                    </a-row>
+                </template>
 
-            <template v-else-if="item.type === 'blank'">
-                <a-form-item :key="item.key" :label="item.name" :prop="item.model">
-                    <slot :name="item.model" :model="models" />
-                </a-form-item>
-            </template>
+                <template v-else-if="item.type === 'tab'">
+                    <a-form-item
+                        :key="'tab_' + item.name"
+                        :label="item.options.hideLabel ? '' : item.name"
+                        :laba-width="item.options.hideLabel ? '0px' : undefined"
+                    >
+                        <a-tabs
+                            v-model="models[item.model || item.key]"
+                            :tab-position="item.options.tabPosition"
+                            :type="item.options.type"
+                            :class="item.options.class"
+                        >
+                            <a-tab-pane
+                                v-for="(col, colIndex) in item.columns"
+                                :key="col.name"
+                                :name="'' + col.name"
+                                :tab="
+                                    col.label
+                                        ? col.label
+                                        : 'Tab' + (colIndex + 1)
+                                "
+                            >
+                                <tab-inline-form
+                                    :size="item.options.formSize"
+                                    :laba-position="
+                                        item.options.formLabelPosition
+                                    "
+                                    :laba-width="
+                                        item.options.formLabelWidth + 'px'
+                                    "
+                                >
+                                    <template v-for="citem in col.list">
+                                        <a-form-item
+                                            v-if="citem.type === 'blank'"
+                                            :key="citem.key"
+                                            :label="citem.label"
+                                            :prop="citem.model"
+                                        >
+                                            <slot
+                                                :name="citem.model"
+                                                :model="models"
+                                            />
+                                        </a-form-item>
+                                        <template
+                                            v-else-if="citem.type === 'form'"
+                                        >
+                                            <generate-form
+                                                :key="citem.type"
+                                                :data="citem"
+                                                :value="value"
+                                            >
+                                            </generate-form>
+                                        </template>
+                                        <generate-form-item
+                                            v-else
+                                            :key="citem.key"
+                                            :models.sync="models"
+                                            :rules="rules"
+                                            :widget="citem"
+                                            :preview="preview"
+                                            :readonly="readonly"
+                                        />
+                                    </template>
+                                </tab-inline-form>
+                            </a-tab-pane>
+                        </a-tabs>
+                    </a-form-item>
+                </template>
 
-            <template v-else>
-                <generate-form-item
-                    :key="item.key"
-                    :models.sync="models"
-                    :rules="rules"
-                    :data="data"
-                    :widget="item"
-                    :preview="preview"
-                    :readonly="readonly"
-                />
+                <template v-else-if="item.type === 'blank'">
+                    <a-form-item
+                        :key="item.key"
+                        :label="item.name"
+                        :prop="item.model"
+                    >
+                        <slot :name="item.model" :model="models" />
+                    </a-form-item>
+                </template>
+                <template v-else-if="item.type === 'form'">
+                    <generate-form :key="item.type" :data="item" :value="value">
+                    </generate-form>
+                </template>
+                <template v-else-if="item.type === '对话框'">
+                    <a-modal
+                        :title="item.title"
+                        :key="item.type"
+                        :visible="visible"
+                        :confirm-loading="confirmLoading"
+                    >
+                        <p>{{ ModalText }}</p>
+                    </a-modal>
+                </template>
+                <template v-else>
+                    <generate-form-item
+                        :key="item.key"
+                        :models.sync="models"
+                        :rules="rules"
+                        :data="data"
+                        :form="form"
+                        :widget="item"
+                        :preview="preview"
+                        :readonly="readonly"
+                    />
+                </template>
             </template>
-        </template>
-
-        <slot />
-    </a-form>
+            <slot />
+        </a-form>
+    </div>
 </template>
 
 <script>
@@ -124,11 +168,16 @@ import GenerateFormItem from "./GenerateFormItem.vue";
 // import { mergeDefaultOption } from "./componentsConfig";
 
 export default {
+    name: "generateForm",
     components: {
         GenerateFormItem,
     },
     props: {
         data: {
+            type: Object,
+            default: {},
+        },
+        form: {
             type: Object,
             default: {},
         },
@@ -144,7 +193,37 @@ export default {
             type: Boolean,
             default: false,
         },
+        listKey: {
+            type: [String, Number],
+        },
     },
+    // computed: {
+    //     conditonRule() {
+    //         if (
+    //             !this.widget.props.conditionConfig.allowCondition ||
+    //             this.widget.props.conditionConfig.conditions.length == 0
+    //         ) {
+    //             return true;
+    //         } else {
+    //             let arr = this.widget.props.conditionConfig.conditions.map(
+    //                 (item) => {
+    //                     let obj = this.data.list.filter((k) => {
+    //                         return k.model == item.modelName;
+    //                     })[0];
+    //                     if (!obj) {
+    //                         return true;
+    //                     }
+    //                     return `'${obj.props.defaultValue}'${item.type}'${item.value}'`;
+    //                 }
+    //             );
+    //             if (this.widget.props.conditionConfig.type == "and") {
+    //                 return this.evil(arr.join("&&"));
+    //             } else {
+    //                 return this.evil(arr.join("||"));
+    //             }
+    //         }
+    //     },
+    // },
     data() {
         return {
             models: {},
@@ -178,7 +257,11 @@ export default {
         },
     },
     created() {
+        // if (this.data.config) {
         this.generateModel(this.data.list);
+        // }
+        // if(this.)
+        console.log(JSON.stringify(this.data));
     },
     mounted() {},
     methods: {
@@ -205,6 +288,10 @@ export default {
                             );
                         }
                     }
+                } else if (genList[i].type === "form") {
+                    genList[i].list = this.form.list.filter((item) => {
+                        return genList[i].keyName == item.keyName;
+                    })[0].list;
                 } else {
                     if (
                         this.value &&

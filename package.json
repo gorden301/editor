@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "vue-cli-service serve",
+    "dev": "vue-cli-service serve --host 0.0.0.0",
     "build": "vue-cli-service build --target lib --name xdapp-form-editor --dest lib packages/index.js && rm ./lib/demo.html",
     "lint": "vue-cli-service lint && stylelint packages/**/*.css packages/**/*.scss packages/**/*.vue"
   },
   "dependencies": {
     "deepmerge": "^4.2.2",
-    "vuedraggable": "^2.23.2",
+    "vuedraggable": "git+https://github.com/SortableJS/Vue.Draggable.git#vue-3",
     "vuex": "^3.5.1",
     "xdapp-ui": "ssh://git@git.xindong.com:core-system/xdapp-ui.git"
   },
