@@ -389,6 +389,9 @@ import preDialog from "./components/PreDialog";
 import makeNew from "./components/MakeNew";
 import Event from "./pages/Event";
 import Structure from "./pages/Structure";
+// Editor.setComponent(Editor.components, builtInComponents)
+debugger
+
 export default {
     name: "XdFormEditor",
     components: {
@@ -462,9 +465,9 @@ export default {
             widgetModels: {},
             htmlTemplate: "",
             jsonTemplate: "",
-            jsonCopy: JSON.parse(JSON.stringify(builtInComponents)),
+            jsonCopy: JSON.parse(JSON.stringify(Editor.components)),
             baseComponentsBuildIn: JSON.parse(
-                JSON.stringify(builtInComponents)
+                JSON.stringify(Editor.components)
             ).reduce((acc, cur) => {
                 if (!acc[cur.category]) {
                     acc[cur.category] = [];

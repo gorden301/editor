@@ -93,7 +93,6 @@ export default {
             this.dialogVisible = false;
         },
         submit() {
-            debugger
             this.loading = true;
             this.$emit("on-submit");
         },

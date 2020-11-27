@@ -1,6 +1,5 @@
-import Editor from './utils/editor'
-const builtInComponents = []
-const defaultComponents = [
+const Editor = {}
+Editor.components = [
     {
         type: 'input',
         category: 'basic',
@@ -462,5 +461,13 @@ const defaultComponents = [
         },
     }
 ]
-Editor.setComponent(defaultComponents)
-export default builtInComponents
+Editor.setComponent = (param) => {
+    if (Array.isArray(Editor.components)) {
+        Editor.components = [...Editor.components, ...param]
+        Editor.components.splice()
+    } else {
+        Editor.components.push(param)
+    }
+}
+
+export default Editor

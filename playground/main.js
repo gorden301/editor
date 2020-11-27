@@ -2,7 +2,10 @@ import Vue from 'vue'
 import App from './App.vue'
 import antd from 'ant-design-vue'
 import 'ant-design-vue/dist/antd.css'
+import Editor from '../packages/utils/editor'
 Vue.use(antd)
+
+window.Editor = Editor
 let instantce = null
 Vue.config.productionTip = false
 function render() {
