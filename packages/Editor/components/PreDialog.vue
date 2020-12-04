@@ -4,9 +4,10 @@
         ref="elDialog"
         class="cus-dialog-container"
         :title="title"
-        :visible="dialogVisible"
+        :visible="visible"
         :close-on-click-modal="false"
         @ok="handleOk"
+        style="z-index:9999999;"
         @cancel="handleCancel"
         append-to-body
         :width="width"
@@ -32,6 +33,7 @@
 export default {
     props: {
         visible: Boolean,
+        count: Number,
         loadingText: {
             type: String,
             default: "",
@@ -47,6 +49,9 @@ export default {
         form: {
             type: Boolean,
             default: true,
+        },
+         testVisible: {
+            type: Boolean,
         },
         action: {
             type: Boolean,
@@ -71,10 +76,10 @@ export default {
         },
     },
     watch: {
-        dialogVisible(val) {
+        visible(val) {
             if (!val) {
                 this.loading = false;
-                this.$emit("on-close");
+                // this.$emit("on-close");
                 setTimeout(() => {
                     this.showForm = false;
                 }, 300);
@@ -82,14 +87,16 @@ export default {
                 this.showForm = true;
             }
         },
-        visible(val) {
-            this.dialogVisible = val;
-        },
+        // visible(val) {
+        //     this.dialogVisible = val;
+        // },
     },
     mounted() {},
     methods: {
         handleOk() {},
         handleCancel() {
+            this.$emit("destroyCustom")
+            this.bus.$emit("destroyCustom")
             this.dialogVisible = false;
         },
         submit() {

@@ -1,8 +1,11 @@
 <template>
-    <a-form-item v-if="conditonRule" :label="widget.name" :prop="widget.model">
+    <a-form-item :label="widget.name" :prop="widget.model">
         <!-- <template v-if="widget.type === 'form'"> 
 
         </template> -->
+        <template v-if="widget.type == 'custom'">
+            <div :id="widget.key + 'pre'"></div>
+        </template>
         <template v-if="widget.type === 'input'">
             <!-- <a-input
                 v-if="widget.props.dataType === 'number' || widget.props.dataType === 'integer' || widget.props.dataType === 'float'"
@@ -14,8 +17,16 @@
             />-->
             <a-input
                 v-model="widget.props.defaultValue"
-                @click="widget.eventsConfig['click'].length > 0 ? handleEvents('click') : doNothing"
-                @blur="widget.eventsConfig['blur'].length > 0 ? handleEvents('blur') : doNothing"
+                @click="
+                    widget.eventsConfig['click'].length > 0
+                        ? handleEvents('click')
+                        : doNothing
+                "
+                @blur="
+                    widget.eventsConfig['blur'].length > 0
+                        ? handleEvents('blur')
+                        : doNothing
+                "
                 :type="widget.props.dataType"
                 :placeholder="widget.props.placeholder"
                 :style="styleString"
@@ -62,29 +73,47 @@
         </template>-->
 
         <template v-else-if="widget.type === 'radio'">
-            <a-radio-group v-model="widget.props.defaultValue" :style="styleString">
+            <a-radio-group
+                v-model="widget.props.defaultValue"
+                :style="styleString"
+            >
                 <a-radio
-                    v-for="(item, index) in (widget.props.remote ? widget.props.remoteOptions : widget.props.options)"
+                    v-for="(item, index) in widget.props.remote
+                        ? widget.props.remoteOptions
+                        : widget.props.options"
                     :key="index"
                     :style="styleString"
                     :value="item.value"
                 >
-                    <template v-if="widget.props.remote">{{ item.label }}</template>
-                    <template v-else>{{ widget.props.showLabel ? item.label : item.value }}</template>
+                    <template v-if="widget.props.remote">{{
+                        item.label
+                    }}</template>
+                    <template v-else>{{
+                        widget.props.showLabel ? item.label : item.value
+                    }}</template>
                 </a-radio>
             </a-radio-group>
         </template>
 
         <template v-else-if="widget.type === 'checkbox'">
-            <a-checkbox-group v-model="widget.props.defaultValue" :style="styleString">
+            <a-checkbox-group
+                v-model="widget.props.defaultValue"
+                :style="styleString"
+            >
                 <a-checkbox
-                    v-for="(item, index) in (widget.props.remote ? widget.props.remoteOptions : widget.props.options)"
+                    v-for="(item, index) in widget.props.remote
+                        ? widget.props.remoteOptions
+                        : widget.props.options"
                     :key="index"
                     :style="styleString"
                     :value="item.value"
                 >
-                    <template v-if="widget.props.remote">{{ item.label }}</template>
-                    <template v-else>{{ widget.props.showLabel ? item.label : item.value }}</template>
+                    <template v-if="widget.props.remote">{{
+                        item.label
+                    }}</template>
+                    <template v-else>{{
+                        widget.props.showLabel ? item.label : item.value
+                    }}</template>
                 </a-checkbox>
             </a-checkbox-group>
         </template>
@@ -102,7 +131,7 @@
                 :clearable="widget.props.clearable"
                 :arrow-control="widget.props.arrowControl"
                 :value-format="widget.props.format"
-                :style="{width: widget.props.width}"
+                :style="{ width: widget.props.width }"
             />
         </template>
 
@@ -117,7 +146,9 @@
                 :disabled="widget.props.disabled"
                 :editable="widget.props.editable"
                 :clearable="widget.props.clearable"
-                :value-format="widget.props.timestamp ? 'timestamp' : widget.props.format"
+                :value-format="
+                    widget.props.timestamp ? 'timestamp' : widget.props.format
+                "
                 :format="widget.props.format"
                 :style="styleString"
             />
@@ -127,7 +158,9 @@
             <a-rate
                 v-model="widget.props.defaultValue"
                 :count="widget.props.count"
-                :disabled="widget.props.disabled || readonly || widget.props.readonly"
+                :disabled="
+                    widget.props.disabled || readonly || widget.props.readonly
+                "
                 :allow-half="widget.props.allowHalf"
             />
         </template>
@@ -136,7 +169,10 @@
             <a-color-picker
                 v-model="widget.props.defaultValu"
                 :disabled="widget.props.disabled"
-                :style="{'pointer-events': readonly || widget.props.readonly ? 'none' : 'inherit'}"
+                :style="{
+                    'pointer-events':
+                        readonly || widget.props.readonly ? 'none' : 'inherit',
+                }"
                 :show-alpha="widget.props.showAlpha"
             />
         </template>
@@ -152,12 +188,18 @@
                 :filterable="widget.props.filterable"
             >
                 <a-select-option
-                    v-for="item in (widget.props.remote ? widget.options.remoteOptions : widget.props.options)"
+                    v-for="item in widget.props.remote
+                        ? widget.options.remoteOptions
+                        : widget.props.options"
                     :key="item.value"
                     :value="item.value"
-                    :label="widget.props.showLabel || widget.props.remote?item.label:item.value"
+                    :label="
+                        widget.props.showLabel || widget.props.remote
+                            ? item.label
+                            : item.value
+                    "
                 >
-                {{ item.label }}
+                    {{ item.label }}
                 </a-select-option>
             </a-select>
         </template>
@@ -175,7 +217,10 @@
                 v-model="widget.props.defaultValue"
                 :min="widget.props.min"
                 :max="widget.props.max"
-                :style="{'pointer-events': readonly || widget.props.readonly ? 'none' : 'inherit'}"
+                :style="{
+                    'pointer-events':
+                        readonly || widget.props.readonly ? 'none' : 'inherit',
+                }"
                 :disabled="widget.props.disabled"
                 :step="widget.props.step"
                 :show-input="widget.props.showInput"
@@ -186,7 +231,10 @@
         <template v-else-if="widget.type === 'upload'">
             <select-media
                 v-model="widget.props.defaultValue"
-                :style="{'pointer-events': readonly || widget.props.readonly ? 'none' : 'inherit'}"
+                :style="{
+                    'pointer-events':
+                        readonly || widget.props.readonly ? 'none' : 'inherit',
+                }"
                 :disabled="widget.props.disabled"
             />
         </template>
@@ -209,7 +257,11 @@
                 :disabled="widget.props.disabled"
                 :clearable="widget.props.clearable"
                 :placeholder="widget.props.placeholder"
-                :style="{width: widget.props.width, 'pointer-events': readonly || widget.props.readonly ? 'none' : 'inherit'}"
+                :style="{
+                    width: widget.props.width,
+                    'pointer-events':
+                        readonly || widget.props.readonly ? 'none' : 'inherit',
+                }"
                 :options="widget.props.remoteOptions"
             />
         </template>
@@ -309,7 +361,10 @@ export default {
             return {
                 // 'click': this.widget.eventsConfig['click'].length > 0 ? this.handleEvents('click') : this.doNothing,
                 // 'hover': this.widget.eventsConfig['hover'].length > 0 ? this.handleEvents('hover') : this.doNothing,
-                blur: this.widget.eventsConfig['blur'].length > 0 ? this.handleEvents('blur') : this.doNothing,
+                blur:
+                    this.widget.eventsConfig["blur"].length > 0
+                        ? this.handleEvents("blur")
+                        : this.doNothing,
             };
         },
         styleString() {
@@ -346,6 +401,8 @@ export default {
         },
     },
     props: {
+        count: Number,
+        visible: Boolean,
         widget: {
             type: Object,
             default: Object,
@@ -370,6 +427,9 @@ export default {
             type: Object,
             default: {},
         },
+        testVisible: {
+            type: Boolean,
+        },
     },
     data() {
         return {
@@ -388,6 +448,29 @@ export default {
                 });
             },
         },
+        testVisible: {
+            immediate: true,
+            handler(val) {
+                if (val) {
+                    if (this.widget) {
+                        this.$nextTick(() => {
+                            if (this.widget.type == "custom") {
+                                this.widget.pluginInstancePre = window.formProps.create(
+                                    this.widget.pluginName,
+                                    this.widget.key + "pre",
+                                    `#${this.widget.key}pre`,
+                                    `#${this.widget.key}pre`
+                                );
+                            }
+                        });
+                    }
+                } else {
+                    this.$nextTick(() => {
+                        this.widget.pluginInstancePre.destroy();
+                    });
+                }
+            },
+        },
         models: {
             deep: true,
             handler(val) {
@@ -396,7 +479,21 @@ export default {
             },
         },
     },
-    mounted() {},
+    mounted() {
+        this.bus.$on("destroyCustom", () => {
+            this.widget.pluginInstancePre.destroy();
+        })
+        // this.$nextTick(() => {
+        //     if (this.widget.type == "custom") {
+        //         window.formProps.create(
+        //             this.widget.pluginName,
+        //             this.widget.key + "pre",
+        //             `#${this.widget.key}pre`,
+        //             `#${this.widget.key}pre`
+        //         );
+        //     }
+        // });
+    },
     created() {
         if (
             this.widget.options.remote &&
@@ -422,10 +519,24 @@ export default {
         }
     },
     methods: {
+        createComponent() {
+            this.$nextTick(() => {
+                if (this.widget.type == "custom") {
+                    window.formProps.create(
+                        this.widget.pluginName,
+                        this.widget.key + "pre",
+                        `#${this.widget.key}pre`,
+                        `#${this.widget.key}pre`
+                    );
+                }
+            });
+        },
         doNothing() {},
         handleEvents(type) {
             let eventDetail = this.form.config.events.filter((item) => {
-                return this.widget.eventsConfig[type][0].event == item.eventName;
+                return (
+                    this.widget.eventsConfig[type][0].event == item.eventName
+                );
             });
             this.$set(
                 this.data.list[

@@ -74,8 +74,9 @@
                                 }"
                             >
                                 <li
-                                    v-for="(item,
-                                    index) in baseComponentsBuildIn"
+                                    v-for="(
+                                        item, index
+                                    ) in baseComponentsBuildIn"
                                     :key="index"
                                     class="form-edit-widget-label"
                                 >
@@ -136,8 +137,9 @@
                                 }"
                             >
                                 <li
-                                    v-for="(item,
-                                    index) in advanceComponents.builtIn"
+                                    v-for="(
+                                        item, index
+                                    ) in advanceComponents.builtIn"
                                     :key="index"
                                     class="form-edit-widget-label"
                                 >
@@ -171,8 +173,45 @@
                                 }"
                             >
                                 <li
-                                    v-for="(item,
-                                    index) in layoutComponents.buildIn"
+                                    v-for="(
+                                        item, index
+                                    ) in layoutComponents.buildIn"
+                                    :key="index"
+                                    class="form-edit-widget-label data-grid"
+                                >
+                                    <a>
+                                        <i
+                                            class="icon iconfont"
+                                            :class="item.icon"
+                                        />
+                                        <span>{{ item.name }}</span>
+                                    </a>
+                                </li>
+                            </draggable>
+                        </a-tab-pane>
+                        <a-tab-pane key="4">
+                            <div slot="tab">
+                                <a-icon slot="tab" type="experiment" />
+                                <span>自定义</span>
+                            </div>
+                            <!-- <a-icon slot="tab" type="experiment" /> -->
+                            <draggable
+                                tag="ul"
+                                :list="customComponents"
+                                v-bind="{
+                                    group: {
+                                        name: 'componentDragGroup',
+                                        pull: 'clone',
+                                        put: false,
+                                    },
+                                    sort: false,
+                                    ghostClass: 'ghost',
+                                }"
+                            >
+                                <li
+                                    v-for="(
+                                        item, index
+                                    ) in customComponents"
                                     :key="index"
                                     class="form-edit-widget-label data-grid"
                                 >
@@ -281,14 +320,12 @@
                         </a-layout-header>
                         <a-layout-content class="config-content">
                             <formItemConf
-                                v-if="$props.type === 'form'"
-                                v-show="configTab === 'widget'"
                                 :item="selectedItem"
                                 :listKey="listKey"
                                 :data="widgetForm"
-                            />
-                            <pageItemConf
-                                v-else-if="$props.type === 'page'"
+                            ></formItemConf>
+                            <!-- <pageItemConf
+                                v-if="$props.type === 'page'"
                                 v-show="configTab === 'widget'"
                                 :item="selectedItem"
                             />
@@ -301,7 +338,7 @@
                                 v-else-if="$props.type === 'page'"
                                 v-show="configTab === 'form'"
                                 :data="widgetForm.config"
-                            />
+                            /> -->
                         </a-layout-content>
                     </a-layout>
                 </a-layout-sider>
@@ -323,16 +360,22 @@
         <pre-dialog
             ref="widgetPreview"
             :visible="previewVisible"
+            :testVisible="testVisible"
+            @destroyCustom="destroyCustom"
+            :count="count"
+            @changeCount="changeCount"
             width="1000px"
             title="表单预览"
             form
-            @on-close="previewVisible = false"
         >
             <generate-form
-                v-if="previewVisible"
+                v-if="testVisible"
                 ref="generateForm"
+                :testVisible="testVisible"
+                :visible="previewVisible"
                 :listKey="listKey"
                 insite="true"
+                 :count="count"
                 :form="widgetForm"
                 :data="widgetForm.list[listKey]"
                 :value="widgetModels"
@@ -380,6 +423,7 @@
 <script>
 import draggable from "vuedraggable";
 import builtInComponents from "../builtInComponents";
+// import test from '../plugins/test' 
 // import { deepClone } from "../utils/utils";
 import GenerateForm from "./components/GenerateForm";
 import formWidget from "./components/Form";
@@ -390,7 +434,6 @@ import makeNew from "./components/MakeNew";
 import Event from "./pages/Event";
 import Structure from "./pages/Structure";
 // Editor.setComponent(Editor.components, builtInComponents)
-debugger
 
 export default {
     name: "XdFormEditor",
@@ -415,11 +458,13 @@ export default {
         },
         type: {
             type: String,
-            default: "page",
+            default: "form",
         },
     },
     data() {
         return {
+            count: 0,
+            testVisible: false,
             activeName: "mainPage",
             listKey: 0,
             drawerItems: [],
@@ -521,6 +566,11 @@ export default {
                 ext: this.extByCategory.advance,
             };
         },
+        customComponents() {
+            return this.jsonCopy.filter((item) => {
+                return item.type == "custom";
+            });
+        },
         layoutComponents() {
             return {
                 buildIn: this.builtInByCategory.layout,
@@ -543,6 +593,7 @@ export default {
         // },
     },
     mounted() {
+        debugger
         this.$nextTick(() => {
             this.currentTreeData = this.widgetForm.config.treeData;
             this.currentTreeData.splice();
@@ -554,6 +605,13 @@ export default {
         });
     },
     methods: {
+        changeCount() {
+            this.count = this.count + 1
+        },
+        destroyCustom(val) {
+            this.previewVisible = false
+            this.testVisible = false
+        },
         deleteMap(key, index) {
             this.widgetForm.list.splice(index, 1);
         },
@@ -563,9 +621,8 @@ export default {
         unDo() {
             if (this.$refs.form.step >= 0) {
                 this.$refs.form.step--;
-                this.$refs.form.data.list[this.activeIndex].list = this.$refs.form.formHistory[
-                    this.$refs.form.step
-                ] || [];
+                this.$refs.form.data.list[this.activeIndex].list =
+                    this.$refs.form.formHistory[this.$refs.form.step] || [];
                 this.$refs.form.data.list[this.activeIndex].list.splice();
             }
         },
@@ -577,10 +634,9 @@ export default {
             //     ];
             //     this.$refs.form.data.list[this.activeIndex].list.splice();
             // }
-             this.$refs.form.step = -1
-            this.$refs.form.data.list[this.activeIndex].list = []
+            this.$refs.form.step = -1;
+            this.$refs.form.data.list[this.activeIndex].list = [];
             this.$refs.form.data.list[this.activeIndex].list.splice();
-
         },
         chooseTreeData(obj) {
             if (obj.type == "mainPage") {
@@ -718,6 +774,9 @@ export default {
         },
         handlePreview() {
             this.previewVisible = true;
+            this.$nextTick(() => {
+                this.testVisible = true
+            })
         },
         handleGenerateJson() {
             this.jsonTemplate = this.getJson();
@@ -817,7 +876,7 @@ ul {
     background-color: #f3f0f0;
     position: sticky;
     top: 0;
-    z-index: 99999;
+    // z-index: 99999;
     .tab {
         display: flex;
         align-items: center;

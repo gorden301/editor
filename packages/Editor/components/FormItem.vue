@@ -5,7 +5,11 @@
         style="z-index:99;"
         :class="{active: select.key === element.key, 'is_req': element.options.required}"
         :label="element.name"
-    >
+    >   
+        <template v-if="element.type == 'custom'">
+            <div :id="element.key"></div>
+        </template>
+        <component v-bind:is="loadertpl " v-if="loadertpl "></component>
         <template v-if="element.type === 'input'">
             <a-input
                 v-model="element.props.defaultValue"
@@ -245,10 +249,18 @@ export default {
     data() {
         return {
             // elementCopy: JSON.parse(JSON.stringify(this.element)),
+            tpl: ''
         };
     },
     watch: {},
     computed: {
+         loadertpl() {
+            const self = this;
+            if(!this.tpl) return "";
+            return function (resolve) {
+                require(['../../plugins/' + this.tpl + '.vue'], resolve)
+            };
+        },
         // elementCopy() {
         //     return JSON.parse(JSON.stringify(this.element))
         // },
@@ -301,7 +313,7 @@ export default {
             } else {
                 this.$emit("item-select-event", this.data.list[this.listKey].list[index + 1]);
             }
-
+            this.element.pluginInstance && this.element.pluginInstance.destroy()
             this.$nextTick(() => {
                 this.data.list[this.listKey].list.splice(index, 1);
             });

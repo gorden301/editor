@@ -462,5 +462,5 @@ const defaultComponents = [
         },
     }
 ]
-Editor.setComponent(defaultComponents)
+Editor.components = defaultComponents
 export default builtInComponents

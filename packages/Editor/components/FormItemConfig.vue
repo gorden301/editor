@@ -1,5 +1,5 @@
 <template>
-    <div v-if="Object.keys(item).length > 0">
+    <div>
         <a-form>
             <a-form-item label="是否开启条件渲染">
                 <a-switch v-model="item.props.conditionConfig.allowCondition" />
@@ -366,17 +366,6 @@
                                         >
                                             删除
                                         </a-button>
-                                        <!-- <a-button
-                                            shape="circle"
-                                            plain
-                                            type="danger"
-                                            icon="a-icon-minus"
-                                            style="
-                                                padding: 4px;
-                                                margin-left: 5px;
-                                            "
-                                            @click="handleOptionsRemove(index)"
-                                        /> -->
                                     </li>
                                 </draggable>
                             </a-checkbox-group>
@@ -393,60 +382,6 @@
                 <a-form-item label="隐藏标题">
                     <a-switch v-model="item.props.hideLabel" />
                 </a-form-item>
-                <!-- 
-                <a-form-item label="标签项">
-                    <draggable
-                        tag="ul"
-                        :list="item.columns"
-                        v-bind="{
-                            group: { name: 'options' },
-                            ghostClass: 'ghost',
-                            handle: '.drag-item',
-                        }"
-                        handle=".drag-item"
-                    >
-                        <li v-for="(citem, index) in data.columns" :key="index">
-                            <i
-                                class="drag-item fa fa-arrows-v"
-                                style="
-                                    font-size: 12px;
-                                    margin: 2px 10px 0 0;
-                                    cursor: move;
-                                "
-                            />
-                            <a-input
-                                v-model="citem.name"
-                                style="width: 80px"
-                                size="mini"
-                            />
-                            <i18n-input
-                                v-model="citem.label"
-                                :lite="true"
-                                value-type="object"
-                                placeholder="标签名"
-                                style="
-                                    margin-left: 5px;
-                                    width: 150px;
-                                    display: inline-block;
-                                "
-                            />
-                            <a-button
-                                circle
-                                plain
-                                type="danger"
-                                size="mini"
-                                icon="a-icon-minus"
-                                style="padding: 4px; margin-left: 5px"
-                                @click="handleOptionsRemove(index)"
-                            />
-                        </li>
-                    </draggable>
-                    <div style="margin-left: 22px">
-                        <a-button type="text" @click="handleAddTabColumn">
-                            添加标签
-                        </a-button>
-                    </div>
-                </a-form-item> -->
 
                 <a-form-item label="显示样式">
                     <a-radio-group v-model="item.props.type" size="mini">
@@ -546,38 +481,10 @@
                         >允许跨服</a-checkbox
                     >
                 </a-form-item>
-                <!-- <a-form-item laba="校验">
-                    <div>
-                        <a-checkbox v-model="data.options.required">必填</a-checkbox>
-                    </div>
-                    <a-saect
-                        v-if="Object.keys(data.options).indexOf('dataType')>=0"
-                        v-model="data.options.dataType"
-                        size="mini"
-                    >
-                        <a-option value="string" laba="字符串" />
-                        <a-option value="number" laba="数字" />
-                        <a-option value="boolean" laba="布尔值" />
-                        <a-option value="integer" laba="整数" />
-                        <a-option value="float" laba="浮点数" />
-                        <a-option value="url" laba="URL地址" />
-                        <a-option value="email" laba="邮箱地址" />
-                        <a-option value="hex" laba="十六进制" />
-                    </a-saect>
-
-                    <div v-if="Object.keys(data.options).indexOf('pattern')>=0">
-                        <a-input
-                            v-model.lazy="data.options.pattern"
-                            size="mini"
-                            style=" width: 240px;"
-                            placeholder="填写正则表达式"
-                        />
-                    </div>
-                </a-form-item>-->
             </template>
         </a-form>
     </div>
-    <div v-else>暂无</div>
+    <!-- <div v-show="Object.keys(item).length == 0">暂无</div> -->
 </template>
 <script>
 import draggable from "vuedraggable";

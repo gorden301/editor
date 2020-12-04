@@ -461,13 +461,30 @@ Editor.components = [
         },
     }
 ]
-Editor.setComponent = (param) => {
-    if (Array.isArray(Editor.components)) {
-        Editor.components = [...Editor.components, ...param]
-        Editor.components.splice()
-    } else {
-        Editor.components.push(param)
+Editor.addPlugin = (param) => {
+    for(let i in param) {
+        param[i].pluginName = i
+        const arr = Editor.components.filter(item => {
+            return item.pluginName == param[i].pluginName
+        })
+        if(arr.length == 0) {
+            Editor.components.push(param[i])
+        }
     }
+    // Object.values(param).forEach(element => {
+    //     const arr = Editor.components.filter(item => {
+    //         return item.name == element.name
+    //     })
+    //     if(arr.length == 0) {
+    //         Editor.components.push(element)
+    //     }
+    // });
+    // if (Array.isArray(Editor.components)) {
+    //     Editor.components = [...Editor.components, ...param]
+    //     Editor.components.splice()
+    // } else {
+        // Editor.components.push(param)
+    // }
 }
 
 export default Editor

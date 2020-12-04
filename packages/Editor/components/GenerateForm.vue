@@ -151,6 +151,7 @@
                         :rules="rules"
                         :data="data"
                         :form="form"
+                        :testVisible="testVisible"
                         :widget="item"
                         :preview="preview"
                         :readonly="readonly"
@@ -173,6 +174,7 @@ export default {
         GenerateFormItem,
     },
     props: {
+        visible: Boolean,
         data: {
             type: Object,
             default: {},
@@ -181,15 +183,19 @@ export default {
             type: Object,
             default: {},
         },
-        remote: {
-            type: Object,
-            default: {},
-        },
+        // remote: {
+        //     type: Object,
+        //     default: {},
+        // },
         value: {
             type: Object,
             default: {},
         },
         readonly: {
+            type: Boolean,
+            default: false,
+        },
+        testVisible: {
             type: Boolean,
             default: false,
         },
@@ -232,6 +238,24 @@ export default {
         };
     },
     watch: {
+        //  testVisible: {
+        //    immediate: true,
+        //     handler(val) {
+        //         debugger;
+        //         if (val) {
+        //             this.$nextTick(() => {
+        //                 if (this.widget.type == "custom") {
+        //                     window.formProps.create(
+        //                         this.widget.pluginName,
+        //                         this.widget.key + "pre",
+        //                         `#${this.widget.key}pre`,
+        //                         `#${this.widget.key}pre`
+        //                     );
+        //                 }
+        //             });
+        //         }
+        //     },
+        // },
         data: {
             deep: true,
             handler(val) {
@@ -263,7 +287,8 @@ export default {
         // if(this.)
         console.log(JSON.stringify(this.data));
     },
-    mounted() {},
+    mounted() {
+    },
     methods: {
         preview() {},
         generateModel(genList) {

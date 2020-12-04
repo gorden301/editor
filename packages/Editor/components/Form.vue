@@ -282,11 +282,11 @@ export default {
             // 为拖拽到容器的元素添加唯一 key
             const type = this.data.list[this.listKey].list[newIndex].type;
             const key =
-                ".key." +
+                "key" +
                 type +
-                "." +
+                "" +
                 Date.parse(new Date()) +
-                "." +
+                "" +
                 Math.ceil(Math.random() * 99999);
             this.$set(this.data.list[this.listKey].list, newIndex, {
                 ...this.data.list[this.listKey].list[newIndex],
@@ -331,6 +331,13 @@ export default {
                 console.log(this.data.list[this.listKey].list[newIndex]);
                 this.$emit("upload-template", this.data.list[this.listKey].list[newIndex]);
             }
+            this.$nextTick(() => {
+                if(type == 'custom') {
+                    this.data.list[this.listKey].list[newIndex].pluginInstance = window.formProps.create(this.data.list[this.listKey].list[newIndex].pluginName, key, `#${key}`, `#${key}Config`)
+                    // let test = window.formProps.create(this.data.list[this.listKey].list[newIndex].pluginName, key, `#${key}`, `#${key}`)
+                    // console.log(test)
+                }
+            })
             this.step ++
             this.formHistory.push(this.data.list[this.listKey].list)
             this.$emit("item-select-event", this.data.list[this.listKey].list[newIndex]);
