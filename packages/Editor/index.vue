@@ -12,7 +12,7 @@
             </span>
             <a-radio-group v-model="pageShow" button-style="solid">
                 <a-radio-button value="a">页面</a-radio-button>
-                <a-radio-button value="b">构成</a-radio-button>
+                <!-- <a-radio-button value="b">构成</a-radio-button> -->
                 <a-radio-button value="c">事件</a-radio-button>
             </a-radio-group>
             <span>
@@ -198,6 +198,9 @@
                             <draggable
                                 tag="ul"
                                 :list="customComponents"
+                                @end="handleMoveEnd"
+                                @start="handleMoveStart"
+                                @unchoose="handleChoose"
                                 v-bind="{
                                     group: {
                                         name: 'componentDragGroup',
@@ -213,7 +216,7 @@
                                         item, index
                                     ) in customComponents"
                                     :key="index"
-                                    class="form-edit-widget-label data-grid"
+                                    class="form-edit-widget-label"
                                 >
                                     <a>
                                         <i
@@ -275,6 +278,7 @@
                         :data="widgetForm"
                         :listKey="listKey"
                         :select="selectedItem"
+                         @addCustom="addCustom"
                         @item-select-event="onSelectionChange"
                         @upload-template="setJSON"
                         @addTree="addTree"
@@ -323,6 +327,8 @@
                                 :item="selectedItem"
                                 :listKey="listKey"
                                 :data="widgetForm"
+                                :customArr="customArr"
+                                @addCustom="addCustom"
                             ></formItemConf>
                             <!-- <pageItemConf
                                 v-if="$props.type === 'page'"
@@ -463,6 +469,7 @@ export default {
     },
     data() {
         return {
+            customArr: [],
             count: 0,
             testVisible: false,
             activeName: "mainPage",
@@ -593,11 +600,16 @@ export default {
         // },
     },
     mounted() {
-        debugger
-        this.$nextTick(() => {
-            this.currentTreeData = this.widgetForm.config.treeData;
-            this.currentTreeData.splice();
-        });
+        // this.$nextTick(() => {
+        //     this.currentTreeData = this.widgetForm.config.treeData;
+        //     this.currentTreeData.splice();
+        // });
+        this.bus.$on("deleteCusDom", (item) => {
+            // let index = this.customArr.findIndex(ele => {
+            //     ele.key == item.key
+            // })
+            // this.customArr.splice(index, 1)
+        })
         this.bus.$on("changeArr", (index) => {
             this.activeIndex = index;
             this.listKey = index;
@@ -605,6 +617,11 @@ export default {
         });
     },
     methods: {
+        addCustom(item) {
+            this.customArr.push(item)
+        },
+        handleChoose() {
+        },
         changeCount() {
             this.count = this.count + 1
         },
@@ -766,6 +783,7 @@ export default {
             // console.log('start-left', oldIndex, this.basicComponents)
         },
         onSelectionChange(obj) {
+            debugger
             this.selectedItem = obj;
             console.log("当前选中元素=============>", this.selectedItem);
         },
@@ -882,7 +900,7 @@ ul {
         align-items: center;
         height: 100%;
         padding-right: 10px;
-        padding-left: 10px;
+        // padding-left: 10px;
         cursor: pointer;
     }
 }

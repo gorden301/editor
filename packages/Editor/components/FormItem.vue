@@ -296,7 +296,6 @@ export default {
     mounted() {},
     methods: {
         goEdit() {
-            console.log('========>触发index')
             this.bus.$emit('changeArr', this.curIndex)
         },
         evil(str) {
@@ -314,6 +313,7 @@ export default {
                 this.$emit("item-select-event", this.data.list[this.listKey].list[index + 1]);
             }
             this.element.pluginInstance && this.element.pluginInstance.destroy()
+            this.bus.$emit("deleteCusDom", this.element)
             this.$nextTick(() => {
                 this.data.list[this.listKey].list.splice(index, 1);
             });

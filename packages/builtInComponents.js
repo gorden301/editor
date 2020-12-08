@@ -408,6 +408,9 @@ const defaultComponents = [
             align: 'top'
         },
         props: {
+            gutter: 0,
+            justify: 'start',
+            align: 'top',
             conditionConfig: {
                 allowCondition: false,
                 type: 'and',
